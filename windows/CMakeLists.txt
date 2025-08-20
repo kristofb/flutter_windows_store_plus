@@ -41,6 +41,10 @@ list(APPEND PLUGIN_SOURCES
   "pigeon/messages.g.h"
   "windows_store_plugin.cpp"
   "windows_store_plugin.h"
+  "windows_store_api.cpp"
+  "windows_store_api.h"
+  "windows_store_helper.cpp"
+  "windows_store_helper.h"
 )
 
 # Define the plugin library target. Its name must not be changed (see comment

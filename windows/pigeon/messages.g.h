@@ -63,11 +63,46 @@ enum class StoreProductKind {
   kGame = 1,
   kConsumable = 2,
   kUnmanagedConsumable = 3,
-  // An add-on that persists for the lifetime that you specify in Partner Center. 
-  // By default, durable add-ons never expire, in which case they can only be purchased once. 
+  // An add-on that persists for the lifetime that you specify in Partner Center.
+  // By default, durable add-ons never expire, in which case they can only be purchased once.
   // If you specify a particular duration for the add-on, the user can repurchase the add-on after it expires.
   // Note: A StoreProduct that represents a subscription add-on has the type Durable.
   kDurable = 4
+};
+
+
+// Gets valid license info for durables add-on that is associated with the current app
+// Invalid license are not included, licenses for consumable add-ons are not included.
+//
+// Generated class from Pigeon that represents data sent in messages.
+class AddOnLicenseInner {
+ public:
+  // Constructs an object setting all fields.
+  explicit AddOnLicenseInner(
+    const std::string& in_app_offer_token,
+    const std::string& sku_store_id,
+    const std::string& expiration_date);
+
+  // The product ID for the add-on.
+  const std::string& in_app_offer_token() const;
+  void set_in_app_offer_token(std::string_view value_arg);
+
+  // The Store ID of the licensed add-on SKU from the Microsoft Store catalog.
+  const std::string& sku_store_id() const;
+  void set_sku_store_id(std::string_view value_arg);
+
+  // Gets the expiration date and time for the add-on license. (ISO 8601)
+  const std::string& expiration_date() const;
+  void set_expiration_date(std::string_view value_arg);
+
+ private:
+  static AddOnLicenseInner FromEncodableList(const flutter::EncodableList& list);
+  flutter::EncodableList ToEncodableList() const;
+  friend class WindowsStoreApi;
+  friend class PigeonInternalCodecSerializer;
+  std::string in_app_offer_token_;
+  std::string sku_store_id_;
+  std::string expiration_date_;
 };
 
 
@@ -80,7 +115,8 @@ class StoreAppLicenseInner {
     bool is_trial,
     const std::string& sku_store_id,
     const std::string& trial_unique_id,
-    int64_t trial_time_remaining);
+    int64_t trial_time_remaining,
+    const flutter::EncodableList& add_on_licenses);
 
   bool is_active() const;
   void set_is_active(bool value_arg);
@@ -97,6 +133,10 @@ class StoreAppLicenseInner {
   int64_t trial_time_remaining() const;
   void set_trial_time_remaining(int64_t value_arg);
 
+  // Gets valid license info for durables add-on that is associated with the current app
+  const flutter::EncodableList& add_on_licenses() const;
+  void set_add_on_licenses(const flutter::EncodableList& value_arg);
+
  private:
   static StoreAppLicenseInner FromEncodableList(const flutter::EncodableList& list);
   flutter::EncodableList ToEncodableList() const;
@@ -107,6 +147,7 @@ class StoreAppLicenseInner {
   std::string sku_store_id_;
   std::string trial_unique_id_;
   int64_t trial_time_remaining_;
+  flutter::EncodableList add_on_licenses_;
 };
 
 
@@ -133,7 +174,7 @@ class StorePriceInner {
   bool is_on_sale() const;
   void set_is_on_sale(bool value_arg);
 
-  // Gets the end date for the sale period for the product, if the product is on sale. (ISO 8601) 
+  // Gets the end date for the sale period for the product, if the product is on sale. (ISO 8601)
   const std::string& sale_end_date() const;
   void set_sale_end_date(std::string_view value_arg);
 

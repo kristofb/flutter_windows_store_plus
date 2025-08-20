@@ -10,6 +10,22 @@ import 'package:pigeon/pigeon.dart';
   dartPackageName: 'windows_store',
 ))
 
+/// Gets valid license info for durables add-on that is associated with the current app
+/// Invalid license are not included, licenses for consumable add-ons are not included.
+
+class AddOnLicenseInner {
+  /// The product ID for the add-on.
+  final String inAppOfferToken;
+
+  /// The Store ID of the licensed add-on SKU from the Microsoft Store catalog.
+  final String skuStoreId;
+
+  /// Gets the expiration date and time for the add-on license. (ISO 8601)
+  final String expirationDate;
+
+  AddOnLicenseInner(this.inAppOfferToken, this.skuStoreId, this.expirationDate);
+}
+
 class StoreAppLicenseInner {
   final bool isActive;
   final bool isTrial;
@@ -17,25 +33,29 @@ class StoreAppLicenseInner {
   final String trialUniqueId;
   final int trialTimeRemaining;
 
+  /// Valid license info for durables add-on that is associated with the current app
+  final List<AddOnLicenseInner> addOnLicenses;
+
   const StoreAppLicenseInner(
     this.isActive,
     this.isTrial,
     this.skuStoreId,
     this.trialUniqueId,
     this.trialTimeRemaining,
+    this.addOnLicenses,
   );
 }
 
 /// Represents the kind of product available in the Microsoft Store.
 /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeproduct.productkind?view=winrt-26100#windows-services-store-storeproduct-productkind
 enum StoreProductKind {
-  application, 
+  application,
   game,
   consumable,
   unmanagedConsumable,
 
-  /// An add-on that persists for the lifetime that you specify in Partner Center. 
-  /// By default, durable add-ons never expire, in which case they can only be purchased once. 
+  /// An add-on that persists for the lifetime that you specify in Partner Center.
+  /// By default, durable add-ons never expire, in which case they can only be purchased once.
   /// If you specify a particular duration for the add-on, the user can repurchase the add-on after it expires.
   /// Note: A StoreProduct that represents a subscription add-on has the type Durable.
   durable;
@@ -46,14 +66,19 @@ enum StoreProductKind {
 class StorePriceInner {
   /// Gets the ISO 4217 currency code for the market of the current user.
   final String currencyCode;
+
   /// Gets a value that indicates whether the product is on sale.
   final bool isOnSale;
-  /// Gets the end date for the sale period for the product, if the product is on sale. (ISO 8601) 
+
+  /// Gets the end date for the sale period for the product, if the product is on sale. (ISO 8601)
   final String saleEndDate;
+
   /// Gets the base price for the product with the appropriate formatting for the market of the current user.
   final String formattedBasePrice;
+
   /// Gets the purchase price for the product with the appropriate formatting for the market of the current user.
   final String formattedPrice;
+
   /// Gets the recurring price for the product with the appropriate formatting for the market of the current user, if recurring billing is enabled for this product.
   final String formattedRecurrencePrice;
 
@@ -72,14 +97,19 @@ class StorePriceInner {
 class StoreProductInner {
   /// Gets the Store ID for this product. For an add-on, this property corresponds to the Store ID that is available on the overview page for the add-on.
   final String storeId;
+
   /// Gets the product description from the Microsoft Store listing.
   final String description;
+
   /// Gets the product title from the Microsoft Store listing.
   final String title;
+
   /// Gets the product ID for this product, if the current StoreProduct represents an add-on.
   final String inAppOfferToken;
+
   /// Gets the type of the product.
   final StoreProductKind productKind;
+
   /// Gets the price for the default SKU and availability for the product.
   final StorePriceInner price;
 

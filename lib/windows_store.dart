@@ -1,5 +1,29 @@
 import "src/messages.g.dart" as inner;
 
+/// Represents a valid license for a durable add-on.
+class AddOnLicense {
+    /// The product ID for the add-on.
+  final String inAppOfferToken;
+
+  /// The Store ID of the licensed add-on SKU from the Microsoft Store catalog.
+  final String skuStoreId;
+
+  /// The expiration date and time for the add-on license. (ISO 8601)
+  final String expirationDate;
+
+  DateTime get expirationDateTime => DateTime.parse(expirationDate);
+
+  AddOnLicense._(this.inAppOfferToken, this.skuStoreId, this.expirationDate);
+
+  factory AddOnLicense._fromInner(inner.AddOnLicenseInner data) {
+    return AddOnLicense._(
+      data.inAppOfferToken,
+      data.skuStoreId,
+      data.expirationDate,
+    );
+  }
+}
+
 class StoreAppLicense {
   StoreAppLicense._({
     required this.isActive,
@@ -7,6 +31,7 @@ class StoreAppLicense {
     required this.skuStoreId,
     required this.trialUniqueId,
     required this.trialTimeRemaining,
+    required this.addOnLicenses,
   });
 
   /// True if the license is valid and provides the current user an entitlement to use the app;
@@ -26,6 +51,9 @@ class StoreAppLicense {
   /// The remaining time for the usage-limited trial that is associated with this app license.
   final Duration trialTimeRemaining;
 
+  /// Valid license info for durables add-on that is associated with the current app
+  final List<AddOnLicense> addOnLicenses;
+
   factory StoreAppLicense._fromInner(inner.StoreAppLicenseInner data) {
     return StoreAppLicense._(
       isActive: data.isActive,
@@ -33,6 +61,7 @@ class StoreAppLicense {
       skuStoreId: data.skuStoreId,
       trialUniqueId: data.trialUniqueId,
       trialTimeRemaining: Duration(milliseconds: data.trialTimeRemaining),
+      addOnLicenses: data.addOnLicenses.map(AddOnLicense._fromInner).toList(),
     );
   }
 }

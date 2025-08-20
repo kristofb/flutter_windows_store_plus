@@ -36,11 +36,67 @@ enum StoreProductKind {
   game,
   consumable,
   unmanagedConsumable,
-  /// An add-on that persists for the lifetime that you specify in Partner Center. 
-  /// By default, durable add-ons never expire, in which case they can only be purchased once. 
+  /// An add-on that persists for the lifetime that you specify in Partner Center.
+  /// By default, durable add-ons never expire, in which case they can only be purchased once.
   /// If you specify a particular duration for the add-on, the user can repurchase the add-on after it expires.
   /// Note: A StoreProduct that represents a subscription add-on has the type Durable.
   durable,
+}
+
+/// Gets valid license info for durables add-on that is associated with the current app
+/// Invalid license are not included, licenses for consumable add-ons are not included.
+class AddOnLicenseInner {
+  AddOnLicenseInner({
+    required this.inAppOfferToken,
+    required this.skuStoreId,
+    required this.expirationDate,
+  });
+
+  /// The product ID for the add-on.
+  String inAppOfferToken;
+
+  /// The Store ID of the licensed add-on SKU from the Microsoft Store catalog.
+  String skuStoreId;
+
+  /// Gets the expiration date and time for the add-on license. (ISO 8601)
+  String expirationDate;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      inAppOfferToken,
+      skuStoreId,
+      expirationDate,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static AddOnLicenseInner decode(Object result) {
+    result as List<Object?>;
+    return AddOnLicenseInner(
+      inAppOfferToken: result[0]! as String,
+      skuStoreId: result[1]! as String,
+      expirationDate: result[2]! as String,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! AddOnLicenseInner || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(encode(), other.encode());
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList())
+;
 }
 
 class StoreAppLicenseInner {
@@ -50,6 +106,7 @@ class StoreAppLicenseInner {
     required this.skuStoreId,
     required this.trialUniqueId,
     required this.trialTimeRemaining,
+    required this.addOnLicenses,
   });
 
   bool isActive;
@@ -62,6 +119,9 @@ class StoreAppLicenseInner {
 
   int trialTimeRemaining;
 
+  /// Gets valid license info for durables add-on that is associated with the current app
+  List<AddOnLicenseInner> addOnLicenses;
+
   List<Object?> _toList() {
     return <Object?>[
       isActive,
@@ -69,6 +129,7 @@ class StoreAppLicenseInner {
       skuStoreId,
       trialUniqueId,
       trialTimeRemaining,
+      addOnLicenses,
     ];
   }
 
@@ -83,6 +144,7 @@ class StoreAppLicenseInner {
       skuStoreId: result[2]! as String,
       trialUniqueId: result[3]! as String,
       trialTimeRemaining: result[4]! as int,
+      addOnLicenses: (result[5] as List<Object?>?)!.cast<AddOnLicenseInner>(),
     );
   }
 
@@ -122,7 +184,7 @@ class StorePriceInner {
   /// Gets a value that indicates whether the product is on sale.
   bool isOnSale;
 
-  /// Gets the end date for the sale period for the product, if the product is on sale. (ISO 8601) 
+  /// Gets the end date for the sale period for the product, if the product is on sale. (ISO 8601)
   String saleEndDate;
 
   /// Gets the base price for the product with the appropriate formatting for the market of the current user.
@@ -304,17 +366,20 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is StoreProductKind) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    }    else if (value is StoreAppLicenseInner) {
+    }    else if (value is AddOnLicenseInner) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    }    else if (value is StorePriceInner) {
+    }    else if (value is StoreAppLicenseInner) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    }    else if (value is StoreProductInner) {
+    }    else if (value is StorePriceInner) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    }    else if (value is AssociatedStoreProductsInner) {
+    }    else if (value is StoreProductInner) {
       buffer.putUint8(133);
+      writeValue(buffer, value.encode());
+    }    else if (value is AssociatedStoreProductsInner) {
+      buffer.putUint8(134);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -328,12 +393,14 @@ class _PigeonCodec extends StandardMessageCodec {
         final int? value = readValue(buffer) as int?;
         return value == null ? null : StoreProductKind.values[value];
       case 130: 
-        return StoreAppLicenseInner.decode(readValue(buffer)!);
+        return AddOnLicenseInner.decode(readValue(buffer)!);
       case 131: 
-        return StorePriceInner.decode(readValue(buffer)!);
+        return StoreAppLicenseInner.decode(readValue(buffer)!);
       case 132: 
-        return StoreProductInner.decode(readValue(buffer)!);
+        return StorePriceInner.decode(readValue(buffer)!);
       case 133: 
+        return StoreProductInner.decode(readValue(buffer)!);
+      case 134: 
         return AssociatedStoreProductsInner.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);

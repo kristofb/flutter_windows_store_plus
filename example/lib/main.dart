@@ -28,32 +28,41 @@ class _MyAppState extends State<MyApp> {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     final result = await _windowsStorePlugin.getAppLicenseAsync();
-    final addons = await _windowsStorePlugin.getAssociatedStoreProductsAsync(StoreProductKind.durable);
+    //final addons = await _windowsStorePlugin.getAssociatedStoreProductsAsync(StoreProductKind.durable);
     setState(() {
       license = result;
-      this.addons = addons;
+      //this.addons = addons;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget addonLicencesWidget = ListView.builder(
+      itemCount: license?.addOnLicenses.length ?? 0,
+      itemBuilder: (context, index) {
+        final addOnLicense = license!.addOnLicenses[index];
+        return ListTile(
+          title: Text('Add-on ${addOnLicense.inAppOfferToken} SKU: ${addOnLicense.skuStoreId}'),
+          subtitle: Text('Valid until: ${addOnLicense.expirationDateTime}'),
+        );
+      },
+    );
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Center(
-          child: Column(
-            children: [
-              Text('isActive = ${license?.isActive}'),
-              Text('isTrial = ${license?.isActive}'),
-              Text('skuStoreId = ${license?.skuStoreId}'),
-              Text('trialUniqueId = ${license?.trialUniqueId}'),
-              Text('trialTimeRemaining = ${license?.trialTimeRemaining}'),
-              Text('isTrial = ${license?.isTrial}'),
-              Text('addons = ${addons?.products.length}'),
-            ],
-          ),
+        body: Column(
+          children: [
+            Text('isActive = ${license?.isActive}'),
+            Text('isTrial = ${license?.isTrial}'),
+            Text('skuStoreId = ${license?.skuStoreId}'),
+            Text('trialUniqueId = ${license?.trialUniqueId}'),
+            Text('trialTimeRemaining = ${license?.trialTimeRemaining}'),
+            Text('addons = ${addons?.products.length}'),
+            Expanded(child: addonLicencesWidget),
+          ],
         ),
       ),
     );

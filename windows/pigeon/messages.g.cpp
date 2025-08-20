@@ -28,6 +28,60 @@ FlutterError CreateConnectionError(const std::string channel_name) {
       EncodableValue(""));
 }
 
+// AddOnLicenseInner
+
+AddOnLicenseInner::AddOnLicenseInner(
+  const std::string& in_app_offer_token,
+  const std::string& sku_store_id,
+  const std::string& expiration_date)
+ : in_app_offer_token_(in_app_offer_token),
+    sku_store_id_(sku_store_id),
+    expiration_date_(expiration_date) {}
+
+const std::string& AddOnLicenseInner::in_app_offer_token() const {
+  return in_app_offer_token_;
+}
+
+void AddOnLicenseInner::set_in_app_offer_token(std::string_view value_arg) {
+  in_app_offer_token_ = value_arg;
+}
+
+
+const std::string& AddOnLicenseInner::sku_store_id() const {
+  return sku_store_id_;
+}
+
+void AddOnLicenseInner::set_sku_store_id(std::string_view value_arg) {
+  sku_store_id_ = value_arg;
+}
+
+
+const std::string& AddOnLicenseInner::expiration_date() const {
+  return expiration_date_;
+}
+
+void AddOnLicenseInner::set_expiration_date(std::string_view value_arg) {
+  expiration_date_ = value_arg;
+}
+
+
+EncodableList AddOnLicenseInner::ToEncodableList() const {
+  EncodableList list;
+  list.reserve(3);
+  list.push_back(EncodableValue(in_app_offer_token_));
+  list.push_back(EncodableValue(sku_store_id_));
+  list.push_back(EncodableValue(expiration_date_));
+  return list;
+}
+
+AddOnLicenseInner AddOnLicenseInner::FromEncodableList(const EncodableList& list) {
+  AddOnLicenseInner decoded(
+    std::get<std::string>(list[0]),
+    std::get<std::string>(list[1]),
+    std::get<std::string>(list[2]));
+  return decoded;
+}
+
 // StoreAppLicenseInner
 
 StoreAppLicenseInner::StoreAppLicenseInner(
@@ -35,12 +89,14 @@ StoreAppLicenseInner::StoreAppLicenseInner(
   bool is_trial,
   const std::string& sku_store_id,
   const std::string& trial_unique_id,
-  int64_t trial_time_remaining)
+  int64_t trial_time_remaining,
+  const EncodableList& add_on_licenses)
  : is_active_(is_active),
     is_trial_(is_trial),
     sku_store_id_(sku_store_id),
     trial_unique_id_(trial_unique_id),
-    trial_time_remaining_(trial_time_remaining) {}
+    trial_time_remaining_(trial_time_remaining),
+    add_on_licenses_(add_on_licenses) {}
 
 bool StoreAppLicenseInner::is_active() const {
   return is_active_;
@@ -87,14 +143,24 @@ void StoreAppLicenseInner::set_trial_time_remaining(int64_t value_arg) {
 }
 
 
+const EncodableList& StoreAppLicenseInner::add_on_licenses() const {
+  return add_on_licenses_;
+}
+
+void StoreAppLicenseInner::set_add_on_licenses(const EncodableList& value_arg) {
+  add_on_licenses_ = value_arg;
+}
+
+
 EncodableList StoreAppLicenseInner::ToEncodableList() const {
   EncodableList list;
-  list.reserve(5);
+  list.reserve(6);
   list.push_back(EncodableValue(is_active_));
   list.push_back(EncodableValue(is_trial_));
   list.push_back(EncodableValue(sku_store_id_));
   list.push_back(EncodableValue(trial_unique_id_));
   list.push_back(EncodableValue(trial_time_remaining_));
+  list.push_back(EncodableValue(add_on_licenses_));
   return list;
 }
 
@@ -104,7 +170,8 @@ StoreAppLicenseInner StoreAppLicenseInner::FromEncodableList(const EncodableList
     std::get<bool>(list[1]),
     std::get<std::string>(list[2]),
     std::get<std::string>(list[3]),
-    std::get<int64_t>(list[4]));
+    std::get<int64_t>(list[4]),
+    std::get<EncodableList>(list[5]));
   return decoded;
 }
 
@@ -352,15 +419,18 @@ EncodableValue PigeonInternalCodecSerializer::ReadValueOfType(
         return encodable_enum_arg.IsNull() ? EncodableValue() : CustomEncodableValue(static_cast<StoreProductKind>(enum_arg_value));
       }
     case 130: {
-        return CustomEncodableValue(StoreAppLicenseInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+        return CustomEncodableValue(AddOnLicenseInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
       }
     case 131: {
-        return CustomEncodableValue(StorePriceInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+        return CustomEncodableValue(StoreAppLicenseInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
       }
     case 132: {
-        return CustomEncodableValue(StoreProductInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+        return CustomEncodableValue(StorePriceInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
       }
     case 133: {
+        return CustomEncodableValue(StoreProductInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+      }
+    case 134: {
         return CustomEncodableValue(AssociatedStoreProductsInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
       }
     default:
@@ -377,23 +447,28 @@ void PigeonInternalCodecSerializer::WriteValue(
       WriteValue(EncodableValue(static_cast<int>(std::any_cast<StoreProductKind>(*custom_value))), stream);
       return;
     }
-    if (custom_value->type() == typeid(StoreAppLicenseInner)) {
+    if (custom_value->type() == typeid(AddOnLicenseInner)) {
       stream->WriteByte(130);
+      WriteValue(EncodableValue(std::any_cast<AddOnLicenseInner>(*custom_value).ToEncodableList()), stream);
+      return;
+    }
+    if (custom_value->type() == typeid(StoreAppLicenseInner)) {
+      stream->WriteByte(131);
       WriteValue(EncodableValue(std::any_cast<StoreAppLicenseInner>(*custom_value).ToEncodableList()), stream);
       return;
     }
     if (custom_value->type() == typeid(StorePriceInner)) {
-      stream->WriteByte(131);
+      stream->WriteByte(132);
       WriteValue(EncodableValue(std::any_cast<StorePriceInner>(*custom_value).ToEncodableList()), stream);
       return;
     }
     if (custom_value->type() == typeid(StoreProductInner)) {
-      stream->WriteByte(132);
+      stream->WriteByte(133);
       WriteValue(EncodableValue(std::any_cast<StoreProductInner>(*custom_value).ToEncodableList()), stream);
       return;
     }
     if (custom_value->type() == typeid(AssociatedStoreProductsInner)) {
-      stream->WriteByte(133);
+      stream->WriteByte(134);
       WriteValue(EncodableValue(std::any_cast<AssociatedStoreProductsInner>(*custom_value).ToEncodableList()), stream);
       return;
     }
