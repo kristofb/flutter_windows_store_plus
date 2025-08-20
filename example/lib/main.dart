@@ -28,10 +28,15 @@ class _MyAppState extends State<MyApp> {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     final result = await _windowsStorePlugin.getAppLicenseAsync();
-    //final addons = await _windowsStorePlugin.getAssociatedStoreProductsAsync(StoreProductKind.durable);
+    AssociatedStoreProducts? addons;
+    try {
+      addons = await _windowsStorePlugin.getAssociatedStoreProductsAsync(StoreProductKind.durable);
+    } catch (e) {
+      print('Error fetching associated store products: $e');
+    }
     setState(() {
       license = result;
-      //this.addons = addons;
+      this.addons = addons;
     });
   }
 

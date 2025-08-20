@@ -51,27 +51,27 @@ namespace windows_store
           addonLicenseList.push_back(flutter::CustomEncodableValue(std::move(addonLicense)));
         }
         #ifdef GENERATE_LICENSE_TEST_DATA
-        std::cout << "Generating test data for add-on licenses..." << std::endl;
-        {
-          // Generate a date time for tomorrow
-          auto tomorrow = winrt::clock::now() + std::chrono::hours(24);
-          AddOnLicenseInner addonLicense = AddOnLicenseInner(
-              winrt::to_string(L"InAppOfferToken1"),
-              winrt::to_string(L"SkuStoreId1"),
-              dateTimeToISO8601(tomorrow)
-              );
-          addonLicenseList.push_back(flutter::CustomEncodableValue(std::move(addonLicense)));
-        }
-        {
-          // Generate a date time for tomorrow
-          auto tomorrow = winrt::clock::now() + std::chrono::hours(24);
-          AddOnLicenseInner addonLicense = AddOnLicenseInner(
-              winrt::to_string(L"InAppOfferToken2"),
-              winrt::to_string(L"SkuStoreId2"),
-              dateTimeToISO8601(tomorrow)
-              );
-          addonLicenseList.push_back(flutter::CustomEncodableValue(std::move(addonLicense)));
-        }
+          std::cout << "Generating test data for add-on licenses..." << std::endl;
+          {
+            // Generate a date time for tomorrow
+            auto tomorrow = winrt::clock::now() + std::chrono::hours(24);
+            AddOnLicenseInner addonLicense = AddOnLicenseInner(
+                winrt::to_string(L"InAppOfferToken1"),
+                winrt::to_string(L"SkuStoreId1"),
+                dateTimeToISO8601(tomorrow)
+                );
+            addonLicenseList.push_back(flutter::CustomEncodableValue(std::move(addonLicense)));
+          }
+          {
+            // Generate a date time for tomorrow
+            auto tomorrow = winrt::clock::now() + std::chrono::hours(24);
+            AddOnLicenseInner addonLicense = AddOnLicenseInner(
+                winrt::to_string(L"InAppOfferToken2"),
+                winrt::to_string(L"SkuStoreId2"),
+                dateTimeToISO8601(tomorrow)
+                );
+            addonLicenseList.push_back(flutter::CustomEncodableValue(std::move(addonLicense)));
+          }
         #endif
 
         auto licenseInfo = StoreAppLicenseInner(
@@ -80,6 +80,7 @@ namespace windows_store
             winrt::to_string(license.SkuStoreId()),
             winrt::to_string(license.TrialUniqueId()),
             license.TrialTimeRemaining().count() / 10000,
+            dateTimeToISO8601(license.ExpirationDate()),
             addonLicenseList);
 
         result(licenseInfo);
@@ -111,12 +112,59 @@ namespace windows_store
           winrt::hresult hr = productsResult.ExtendedError();
           if (hr.value != S_OK)
           {
+            #ifdef GENERATE_LICENSE_TEST_DATA
+            std::cout << "Generating test data for associated add-ons..." << std::endl;
+            auto usd = winrt::to_string(L"USD");
+            auto tomorrow = winrt::clock::now() + std::chrono::hours(24);
+            flutter::EncodableList productList;
+            {
+              StorePriceInner priceInner = StorePriceInner(
+                  usd,
+                  true /* on sale */,
+                  dateTimeToISO8601(tomorrow), /* sale end date */
+                  winrt::to_string(L"14.00"),
+                  winrt::to_string(L"14.00"),
+                  winrt::to_string(L"14.00"));
+
+              StoreProductInner productInner = StoreProductInner(
+                winrt::to_string(L"SkuStoreId1"),
+                winrt::to_string(L"This is my product 1 description"),
+                winrt::to_string(L"Product 1"),
+                winrt::to_string(L"InAppOfferToken1"),
+                windows_store::StoreProductKind::kDurable,
+                priceInner);
+                
+              productList.push_back(flutter::CustomEncodableValue(std::move(productInner)));
+            }
+            {
+              StorePriceInner priceInner = StorePriceInner(
+                  usd,
+                  true /* on sale */,
+                  dateTimeToISO8601(tomorrow), /* sale end date */
+                  winrt::to_string(L"110.00"),
+                  winrt::to_string(L"110.00"),
+                  winrt::to_string(L"110.00"));
+
+              StoreProductInner productInner = StoreProductInner(
+                winrt::to_string(L"SkuStoreId2"),
+                winrt::to_string(L"This is my product 2 description"),
+                winrt::to_string(L"Product 2"),
+                winrt::to_string(L"InAppOfferToken2"),
+                windows_store::StoreProductKind::kDurable,
+                priceInner);
+                
+              productList.push_back(flutter::CustomEncodableValue(std::move(productInner)));
+            }
+            result(AssociatedStoreProductsInner{ productList });
+            #else       
             // If there is an error, we return it
             result(FlutterError(std::to_string(hr.value), hr.value == ERROR_NO_SUCH_USER ?
                 winrt::to_string(L"Error while getting associated store products, no user connected")
               : winrt::to_string(L"Error while getting associated store products"), ""));
+            #endif
             return;
           }
+		  std::cout << "Successfully retrieved associated store products." << std::endl;
 
           // Iterate the map to get info about all products
           auto productsMap = productsResult.Products();

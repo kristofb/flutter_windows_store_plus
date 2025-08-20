@@ -11,6 +11,7 @@ class AddOnLicense {
   /// The expiration date and time for the add-on license. (ISO 8601)
   final String expirationDate;
 
+  /// The expiration date and time for the add-on license
   DateTime get expirationDateTime => DateTime.parse(expirationDate);
 
   AddOnLicense._(this.inAppOfferToken, this.skuStoreId, this.expirationDate);
@@ -31,6 +32,7 @@ class StoreAppLicense {
     required this.skuStoreId,
     required this.trialUniqueId,
     required this.trialTimeRemaining,
+    required this.expirationDate,
     required this.addOnLicenses,
   });
 
@@ -51,8 +53,14 @@ class StoreAppLicense {
   /// The remaining time for the usage-limited trial that is associated with this app license.
   final Duration trialTimeRemaining;
 
+  /// Expiration date and time for the app license (ISO 8601)
+  final String expirationDate;
+
   /// Valid license info for durables add-on that is associated with the current app
   final List<AddOnLicense> addOnLicenses;
+
+  /// Expiration date and time for the app license
+  DateTime get expirationDateTime => DateTime.parse(expirationDate);
 
   factory StoreAppLicense._fromInner(inner.StoreAppLicenseInner data) {
     return StoreAppLicense._(
@@ -61,6 +69,7 @@ class StoreAppLicense {
       skuStoreId: data.skuStoreId,
       trialUniqueId: data.trialUniqueId,
       trialTimeRemaining: Duration(milliseconds: data.trialTimeRemaining),
+      expirationDate: data.expirationDate,
       addOnLicenses: data.addOnLicenses.map(AddOnLicense._fromInner).toList(),
     );
   }
@@ -78,23 +87,26 @@ class StorePrice {
     required this.formattedRecurrencePrice,
   });
 
-  /// Gets the ISO 4217 currency code for the market of the current user.
+  /// ISO 4217 currency code for the market of the current user.
   final String currencyCode;
 
-  /// Gets a value that indicates whether the product is on sale.
+  /// Indicates whether the product is on sale.
   final bool isOnSale;
 
-  /// Gets the end date for the sale period for the product, if the product is on sale. (ISO 8601)
+  /// End date for the sale period for the product, if the product is on sale. (ISO 8601)
   final String saleEndDate;
 
-  /// Gets the base price for the product with the appropriate formatting for the market of the current user.
+  /// Base price for the product with the appropriate formatting for the market of the current user.
   final String formattedBasePrice;
 
-  /// Gets the purchase price for the product with the appropriate formatting for the market of the current user.
+  /// Purchase price for the product with the appropriate formatting for the market of the current user.
   final String formattedPrice;
 
-  /// Gets the recurring price for the product with the appropriate formatting for the market of the current user, if recurring billing is enabled for this product.
+  /// Recurring price for the product with the appropriate formatting for the market of the current user, if recurring billing is enabled for this product.
   final String formattedRecurrencePrice;
+
+  /// The expiration date and time for the add-on license
+  DateTime get saleEndDateTime => DateTime.parse(saleEndDate);
 
   factory StorePrice._fromInner(inner.StorePriceInner data) {
     return StorePrice._(

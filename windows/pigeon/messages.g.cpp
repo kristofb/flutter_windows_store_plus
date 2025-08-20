@@ -90,12 +90,14 @@ StoreAppLicenseInner::StoreAppLicenseInner(
   const std::string& sku_store_id,
   const std::string& trial_unique_id,
   int64_t trial_time_remaining,
+  const std::string& expiration_date,
   const EncodableList& add_on_licenses)
  : is_active_(is_active),
     is_trial_(is_trial),
     sku_store_id_(sku_store_id),
     trial_unique_id_(trial_unique_id),
     trial_time_remaining_(trial_time_remaining),
+    expiration_date_(expiration_date),
     add_on_licenses_(add_on_licenses) {}
 
 bool StoreAppLicenseInner::is_active() const {
@@ -143,6 +145,15 @@ void StoreAppLicenseInner::set_trial_time_remaining(int64_t value_arg) {
 }
 
 
+const std::string& StoreAppLicenseInner::expiration_date() const {
+  return expiration_date_;
+}
+
+void StoreAppLicenseInner::set_expiration_date(std::string_view value_arg) {
+  expiration_date_ = value_arg;
+}
+
+
 const EncodableList& StoreAppLicenseInner::add_on_licenses() const {
   return add_on_licenses_;
 }
@@ -154,12 +165,13 @@ void StoreAppLicenseInner::set_add_on_licenses(const EncodableList& value_arg) {
 
 EncodableList StoreAppLicenseInner::ToEncodableList() const {
   EncodableList list;
-  list.reserve(6);
+  list.reserve(7);
   list.push_back(EncodableValue(is_active_));
   list.push_back(EncodableValue(is_trial_));
   list.push_back(EncodableValue(sku_store_id_));
   list.push_back(EncodableValue(trial_unique_id_));
   list.push_back(EncodableValue(trial_time_remaining_));
+  list.push_back(EncodableValue(expiration_date_));
   list.push_back(EncodableValue(add_on_licenses_));
   return list;
 }
@@ -171,7 +183,8 @@ StoreAppLicenseInner StoreAppLicenseInner::FromEncodableList(const EncodableList
     std::get<std::string>(list[2]),
     std::get<std::string>(list[3]),
     std::get<int64_t>(list[4]),
-    std::get<EncodableList>(list[5]));
+    std::get<std::string>(list[5]),
+    std::get<EncodableList>(list[6]));
   return decoded;
 }
 

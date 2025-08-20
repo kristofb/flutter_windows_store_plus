@@ -106,6 +106,9 @@ class AddOnLicenseInner {
 };
 
 
+// Provides license info for the current app, including licenses for products that are offered by the app.
+// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeapplicense?view=winrt-26100
+//
 // Generated class from Pigeon that represents data sent in messages.
 class StoreAppLicenseInner {
  public:
@@ -116,24 +119,34 @@ class StoreAppLicenseInner {
     const std::string& sku_store_id,
     const std::string& trial_unique_id,
     int64_t trial_time_remaining,
+    const std::string& expiration_date,
     const flutter::EncodableList& add_on_licenses);
 
+  // Indicates whether the license is valid and provides the current user an entitlement to use the app.
   bool is_active() const;
   void set_is_active(bool value_arg);
 
+  // Indicates whether the license is a trial license.
   bool is_trial() const;
   void set_is_trial(bool value_arg);
 
+  // Store ID of the licensed app SKU from the Microsoft Store catalog
   const std::string& sku_store_id() const;
   void set_sku_store_id(std::string_view value_arg);
 
+  // Unique ID that identifies the combination of the current user and the usage-limited trial that is associated with this app license
   const std::string& trial_unique_id() const;
   void set_trial_unique_id(std::string_view value_arg);
 
+  // Remaining time for the usage-limited trial that is associated with this app license
   int64_t trial_time_remaining() const;
   void set_trial_time_remaining(int64_t value_arg);
 
-  // Gets valid license info for durables add-on that is associated with the current app
+  // Expiration date and time for the app license (ISO 8601)
+  const std::string& expiration_date() const;
+  void set_expiration_date(std::string_view value_arg);
+
+  // Valid license info for durables add-on that is associated with the current app
   const flutter::EncodableList& add_on_licenses() const;
   void set_add_on_licenses(const flutter::EncodableList& value_arg);
 
@@ -147,6 +160,7 @@ class StoreAppLicenseInner {
   std::string sku_store_id_;
   std::string trial_unique_id_;
   int64_t trial_time_remaining_;
+  std::string expiration_date_;
   flutter::EncodableList add_on_licenses_;
 };
 

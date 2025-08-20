@@ -26,12 +26,21 @@ class AddOnLicenseInner {
   AddOnLicenseInner(this.inAppOfferToken, this.skuStoreId, this.expirationDate);
 }
 
+/// Provides license info for the current app, including licenses for products that are offered by the app.
+/// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeapplicense?view=winrt-26100
 class StoreAppLicenseInner {
+  /// Indicates whether the license is valid and provides the current user an entitlement to use the app.
   final bool isActive;
+  /// Indicates whether the license is a trial license.
   final bool isTrial;
+  /// Store ID of the licensed app SKU from the Microsoft Store catalog
   final String skuStoreId;
+  /// Unique ID that identifies the combination of the current user and the usage-limited trial that is associated with this app license
   final String trialUniqueId;
+  /// Remaining time for the usage-limited trial that is associated with this app license
   final int trialTimeRemaining;
+  /// Expiration date and time for the app license (ISO 8601)
+  final String expirationDate;
 
   /// Valid license info for durables add-on that is associated with the current app
   final List<AddOnLicenseInner> addOnLicenses;
@@ -43,6 +52,7 @@ class StoreAppLicenseInner {
     this.trialUniqueId,
     this.trialTimeRemaining,
     this.addOnLicenses,
+    this.expirationDate,
   );
 }
 

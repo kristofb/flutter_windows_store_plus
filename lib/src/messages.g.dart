@@ -99,6 +99,8 @@ class AddOnLicenseInner {
 ;
 }
 
+/// Provides license info for the current app, including licenses for products that are offered by the app.
+/// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeapplicense?view=winrt-26100
 class StoreAppLicenseInner {
   StoreAppLicenseInner({
     required this.isActive,
@@ -106,20 +108,29 @@ class StoreAppLicenseInner {
     required this.skuStoreId,
     required this.trialUniqueId,
     required this.trialTimeRemaining,
+    required this.expirationDate,
     required this.addOnLicenses,
   });
 
+  /// Indicates whether the license is valid and provides the current user an entitlement to use the app.
   bool isActive;
 
+  /// Indicates whether the license is a trial license.
   bool isTrial;
 
+  /// Store ID of the licensed app SKU from the Microsoft Store catalog
   String skuStoreId;
 
+  /// Unique ID that identifies the combination of the current user and the usage-limited trial that is associated with this app license
   String trialUniqueId;
 
+  /// Remaining time for the usage-limited trial that is associated with this app license
   int trialTimeRemaining;
 
-  /// Gets valid license info for durables add-on that is associated with the current app
+  /// Expiration date and time for the app license (ISO 8601)
+  String expirationDate;
+
+  /// Valid license info for durables add-on that is associated with the current app
   List<AddOnLicenseInner> addOnLicenses;
 
   List<Object?> _toList() {
@@ -129,6 +140,7 @@ class StoreAppLicenseInner {
       skuStoreId,
       trialUniqueId,
       trialTimeRemaining,
+      expirationDate,
       addOnLicenses,
     ];
   }
@@ -144,7 +156,8 @@ class StoreAppLicenseInner {
       skuStoreId: result[2]! as String,
       trialUniqueId: result[3]! as String,
       trialTimeRemaining: result[4]! as int,
-      addOnLicenses: (result[5] as List<Object?>?)!.cast<AddOnLicenseInner>(),
+      expirationDate: result[5]! as String,
+      addOnLicenses: (result[6] as List<Object?>?)!.cast<AddOnLicenseInner>(),
     );
   }
 
