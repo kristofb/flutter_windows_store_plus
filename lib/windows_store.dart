@@ -37,11 +37,119 @@ class StoreAppLicense {
   }
 }
 
+/// Contains pricing info for a product listing in the Microsoft Store.
+/// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeprice?view=winrt-26100
+class StorePrice {
+  StorePrice._({
+    required this.currencyCode,
+    required this.isOnSale,
+    required this.saleEndDate,
+    required this.formattedBasePrice,
+    required this.formattedPrice,
+    required this.formattedRecurrencePrice,
+  });
+
+  /// Gets the ISO 4217 currency code for the market of the current user.
+  final String currencyCode;
+
+  /// Gets a value that indicates whether the product is on sale.
+  final bool isOnSale;
+
+  /// Gets the end date for the sale period for the product, if the product is on sale. (ISO 8601)
+  final String saleEndDate;
+
+  /// Gets the base price for the product with the appropriate formatting for the market of the current user.
+  final String formattedBasePrice;
+
+  /// Gets the purchase price for the product with the appropriate formatting for the market of the current user.
+  final String formattedPrice;
+
+  /// Gets the recurring price for the product with the appropriate formatting for the market of the current user, if recurring billing is enabled for this product.
+  final String formattedRecurrencePrice;
+
+  factory StorePrice._fromInner(inner.StorePriceInner data) {
+    return StorePrice._(
+      currencyCode: data.currencyCode,
+      isOnSale: data.isOnSale,
+      saleEndDate: data.saleEndDate,
+      formattedBasePrice: data.formattedBasePrice,
+      formattedPrice: data.formattedPrice,
+      formattedRecurrencePrice: data.formattedRecurrencePrice,
+    );
+  }
+}
+
+/// Represents the kind of product add-on available in the Microsoft Store.
+typedef StoreProductKind = inner.StoreProductKind;
+
+/// Add-on associated to the application in the Microsoft Store
+/// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeproduct?view=winrt-26100
+class StoreProduct {
+  StoreProduct._({
+    required this.storeId,
+    required this.description,
+    required this.title,
+    required this.inAppOfferToken,
+    required this.productKind,
+    required this.price,
+  });
+
+  /// Gets the Store ID for this product. For an add-on, this property corresponds to the Store ID that is available on the overview page for the add-on.
+  String storeId;
+
+  /// Gets the product description from the Microsoft Store listing.
+  String description;
+
+  /// Gets the product title from the Microsoft Store listing.
+  String title;
+
+  /// Gets the product ID for this product, if the current StoreProduct represents an add-on.
+  String inAppOfferToken;
+
+  /// Gets the type of the product.
+  StoreProductKind productKind;
+
+  /// Gets the price for the default SKU and availability for the product.
+  StorePrice price;
+
+  factory StoreProduct._fromInner(inner.StoreProductInner data) {
+    return StoreProduct._(
+      storeId: data.storeId,
+      description: data.description,
+      title: data.title,
+      inAppOfferToken: data.inAppOfferToken,
+      productKind: data.productKind,
+      price: StorePrice._fromInner(data.price),
+    );
+  }
+}
+
+/// Represents a collection of add-ons associated with the application in the Microsoft Store.
+class AssociatedStoreProducts {
+  AssociatedStoreProducts._({
+    required this.products,
+  });
+
+  final List<StoreProduct> products;
+
+  factory AssociatedStoreProducts._fromInner(inner.AssociatedStoreProductsInner data) {
+    return AssociatedStoreProducts._(
+      products: data.products.map(StoreProduct._fromInner).toList(),
+    );
+  }
+}
+
 class WindowsStoreApi {
   final _api = inner.WindowsStoreApi();
 
   /// Get's the license information for from the Microsoft Store. Only works on Windows.
   Future<StoreAppLicense> getAppLicenseAsync() async {
     return StoreAppLicense._fromInner(await _api.getAppLicenseAsync());
+  }
+
+  /// Gets Microsoft Store listing info for the products that can be purchased from within the current app.
+  /// productKind: The kind of product to retrieve.
+  Future<AssociatedStoreProducts> getAssociatedStoreProductsAsync(StoreProductKind productKind) async {
+    return AssociatedStoreProducts._fromInner(await _api.getAssociatedStoreProductsAsync(productKind));
   }
 }

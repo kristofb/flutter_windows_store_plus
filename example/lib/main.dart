@@ -17,6 +17,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _windowsStorePlugin = WindowsStoreApi();
   StoreAppLicense? license;
+  AssociatedStoreProducts? addons;
 
   @override
   void initState() {
@@ -27,8 +28,10 @@ class _MyAppState extends State<MyApp> {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     final result = await _windowsStorePlugin.getAppLicenseAsync();
+    final addons = await _windowsStorePlugin.getAssociatedStoreProductsAsync(StoreProductKind.durable);
     setState(() {
       license = result;
+      this.addons = addons;
     });
   }
 
@@ -47,6 +50,8 @@ class _MyAppState extends State<MyApp> {
               Text('skuStoreId = ${license?.skuStoreId}'),
               Text('trialUniqueId = ${license?.trialUniqueId}'),
               Text('trialTimeRemaining = ${license?.trialTimeRemaining}'),
+              Text('isTrial = ${license?.isTrial}'),
+              Text('addons = ${addons?.products.length}'),
             ],
           ),
         ),
