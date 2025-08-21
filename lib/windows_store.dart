@@ -1,8 +1,12 @@
 import "src/messages.g.dart" as inner;
 
+// Export the enums so they can be used by consumers
+export "src/messages.g.dart" show StoreProductKind, StoreSubscriptionBillingPeriodUnit;
+import "src/messages.g.dart" show StoreProductKind, StoreSubscriptionBillingPeriodUnit;
+
 /// Represents a valid license for a durable add-on.
 class AddOnLicense {
-    /// The product ID for the add-on.
+  /// The product ID for the add-on.
   final String inAppOfferToken;
 
   /// The Store ID of the licensed add-on SKU from the Microsoft Store catalog.
@@ -51,9 +55,14 @@ class StoreAppLicense {
 
   /// A unique ID that identifies the combination of the current user and the usage-limited
   /// trial that is associated with this app license.
+  /// (see trialTimeRemaining)
   final String trialUniqueId;
 
   /// The remaining time for the usage-limited trial that is associated with this app license.
+  /// This property is intended to be used by developers who have configured their app as a 
+  /// usage-limited trial in Partner Center. 
+  /// Usage-limited trials are currently available only to some developer accounts in Xbox managed partner programs.
+  /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeapplicense.trialtimeremaining?view=winrt-26100
   final Duration trialTimeRemaining;
 
   /// Expiration date and time for the app license (ISO 8601)
@@ -127,16 +136,47 @@ class StorePrice {
 }
 
 /// Represents the kind of product add-on available in the Microsoft Store.
-typedef StoreProductKind = inner.StoreProductKind;
+extension StoreProductKindExtension on StoreProductKind {
+  String get name {
+    switch (this) {
+      case StoreProductKind.application:
+        return 'Application';
+      case StoreProductKind.game:
+        return 'Game';
+      case StoreProductKind.unmanagedConsumable:
+        return 'Unmanaged Consumable';
+      case StoreProductKind.durable:
+        return 'Durable';
+      case StoreProductKind.consumable:
+        return 'Consumable';
+    }
+  }
+}
 
 /// Defines values that represent the units of a trial period or billing period for a subscription
-typedef StoreSubscriptionBillingPeriodUnit = inner.StoreSubscriptionBillingPeriodUnit;
+extension StoreSubscriptionBillingPeriodUnitExtension on StoreSubscriptionBillingPeriodUnit {
+  String get name {
+    switch (this) {
+      case StoreSubscriptionBillingPeriodUnit.minute:
+        return 'Minute(s)';
+      case StoreSubscriptionBillingPeriodUnit.hour:
+        return 'Hour(s)';
+      case StoreSubscriptionBillingPeriodUnit.day:
+        return 'Day(s)';
+      case StoreSubscriptionBillingPeriodUnit.week:
+        return 'Week(s)';
+      case StoreSubscriptionBillingPeriodUnit.month:
+        return 'Month(s)';
+      case StoreSubscriptionBillingPeriodUnit.year:
+        return 'Year(s)';
+    }
+  }
+}
 
 /// Provides subscription info for a product SKU that represents a subscription with recurring billing.
 /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storesubscriptioninfo?view=winrt-26100
 class StoreSubscriptionInfo {
-
-/// Duration of the billing period for a subscription, in the units specified by the BillingPeriodUnit property.
+  /// Duration of the billing period for a subscription, in the units specified by the BillingPeriodUnit property.
   final int billingPeriod;
 
   /// Units of the billing period for a subscription.
@@ -188,22 +228,22 @@ class StoreProductSku {
   /// Product SKU title from the Microsoft Store listing.
   final String title;
 
-  /// Subscription information for this product SKU, if this product SKU is a subscription with recurring billing. 
+  /// Subscription information for this product SKU, if this product SKU is a subscription with recurring billing.
   /// To determine whether this product SKU is a subscription, use the IsSubscription property.
   final StoreSubscriptionInfo? subscriptionInfo;
 
   /// Price of the default availability for this product SKU.
-  final StorePrice? price;
+  final StorePrice price;
 
-  const StoreProductSku._(
-    this.storeId,
-    this.isTrial,
-    this.isSubscription,
-    this.description,
-    this.title,
-    this.subscriptionInfo,
-    this.price,
-  );
+  const StoreProductSku._({
+    required this.storeId,
+    required this.isTrial,
+    required this.isSubscription,
+    required this.description,
+    required this.title,
+    required this.subscriptionInfo,
+    required this.price,
+  });
 
   factory StoreProductSku._fromInner(inner.StoreProductSkuInner data) {
     return StoreProductSku._(
@@ -212,10 +252,8 @@ class StoreProductSku {
       isSubscription: data.isSubscription,
       description: data.description,
       title: data.title,
-      subscriptionInfo: data.subscriptionInfo != null
-          ? StoreSubscriptionInfo._fromInner(data.subscriptionInfo!)
-          : null,
-      price: data.price != null ? StorePrice._fromInner(data.price!) : null,
+      subscriptionInfo: data.subscriptionInfo != null ? StoreSubscriptionInfo._fromInner(data.subscriptionInfo!) : null,
+      price: StorePrice._fromInner(data.price),
     );
   }
 }
@@ -251,7 +289,7 @@ class StoreProduct {
   /// Gets the price for the default SKU and availability for the product.
   final StorePrice price;
 
-  /// List of available SKUs for the product. 
+  /// List of available SKUs for the product.
   final List<StoreProductSku> skus;
 
   factory StoreProduct._fromInner(inner.StoreProductInner data) {

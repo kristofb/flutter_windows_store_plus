@@ -38,9 +38,14 @@ class StoreAppLicenseInner {
   final String skuStoreId;
 
   /// Unique ID that identifies the combination of the current user and the usage-limited trial that is associated with this app license
+  /// (see trialTimeRemaining)
   final String trialUniqueId;
 
-  /// Remaining time for the usage-limited trial that is associated with this app license (seconds)
+  /// The remaining time for the usage-limited trial that is associated with this app license.
+  /// This property is intended to be used by developers who have configured their app as a 
+  /// usage-limited trial in Partner Center. 
+  /// Usage-limited trials are currently available only to some developer accounts in Xbox managed partner programs.
+  /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeapplicense.trialtimeremaining?view=winrt-26100
   final int trialTimeRemaining;
 
   /// Expiration date and time for the app license (ISO 8601)

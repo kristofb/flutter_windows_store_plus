@@ -145,10 +145,15 @@ class StoreAppLicenseInner {
   void set_sku_store_id(std::string_view value_arg);
 
   // Unique ID that identifies the combination of the current user and the usage-limited trial that is associated with this app license
+  // (see trialTimeRemaining)
   const std::string& trial_unique_id() const;
   void set_trial_unique_id(std::string_view value_arg);
 
-  // Remaining time for the usage-limited trial that is associated with this app license (seconds)
+  // The remaining time for the usage-limited trial that is associated with this app license.
+  // This property is intended to be used by developers who have configured their app as a 
+  // usage-limited trial in Partner Center. 
+  // Usage-limited trials are currently available only to some developer accounts in Xbox managed partner programs.
+  // https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeapplicense.trialtimeremaining?view=winrt-26100
   int64_t trial_time_remaining() const;
   void set_trial_time_remaining(int64_t value_arg);
 

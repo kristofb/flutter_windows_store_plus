@@ -47,15 +47,16 @@ class _MyAppState extends State<MyApp> {
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const Text("Application License Info", 
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const Text("Application License Info", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 8),
           Text('Is Active: ${license?.isActive ?? 'Unknown'}'),
           Text('Is Trial: ${license?.isTrial ?? 'Unknown'}'),
           Text('SKU Store ID: ${license?.skuStoreId ?? 'Unknown'}'),
-          Text('Trial Unique ID: ${license?.trialUniqueId ?? 'Unknown'}'),
-          Text('Trial Time Remaining: ${license?.trialTimeRemaining ?? 'Unknown'}'),
+          const Text('Special case trial: (see docs)'),
+          Text(' - Trial Unique ID: ${license?.trialUniqueId ?? 'Unknown'}'),
+          Text(' - Trial Time Remaining: ${license?.trialTimeRemaining ?? 'Unknown'}'),
           const SizedBox(height: 16),
         ],
       ),
@@ -66,11 +67,22 @@ class _MyAppState extends State<MyApp> {
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const Text("Add-on Licenses", 
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 8),
-          Text('Count: ${license?.addOnLicenses.length ?? 0}'),
+          RichText(
+            text: TextSpan(
+              children: [
+                const TextSpan(
+                  text: "Add-on Licenses",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
+                ),
+                TextSpan(
+                  text: " Count: ${license?.addOnLicenses.length ?? 0}",
+                  style: const TextStyle(fontSize: 16, color: Colors.black),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 8),
           Expanded(
             child: license?.addOnLicenses.isNotEmpty == true
@@ -85,8 +97,8 @@ class _MyAppState extends State<MyApp> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('SKU: ${addOnLicense.skuStoreId}', 
-                                style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text('SKU: ${addOnLicense.skuStoreId}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold)),
                               Text('Offer Token: ${addOnLicense.inAppOfferToken}'),
                               Text('Valid until: ${addOnLicense.expirationDateTime}'),
                             ],
@@ -107,10 +119,20 @@ class _MyAppState extends State<MyApp> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Add-on Products", 
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 8),
-          Text('Count: ${addons?.products.length ?? 0}'),
+          RichText(
+            text: TextSpan(
+              children: [
+                const TextSpan(
+                  text: "Add-on Products",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
+                ),
+                TextSpan(
+                  text: " Count: ${addons?.products.length ?? 0}",
+                  style: const TextStyle(fontSize: 16, color: Colors.black),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 8),
           Expanded(
             child: addons?.products.isNotEmpty == true
@@ -125,13 +147,37 @@ class _MyAppState extends State<MyApp> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(product.title, 
-                                style: const TextStyle(fontWeight: FontWeight.bold)),
-                              if (product.description.isNotEmpty)
-                                Text('Description: ${product.description}'),
+                              Text(product.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              if (product.description.isNotEmpty) Text('Description: ${product.description}'),
                               Text('Store ID: ${product.storeId}'),
-                              Text('Product Kind: ${product.productKind}'),
+                              Text('Product Kind: ${product.productKind.name}'),
                               Text('Price: ${product.price.formattedPrice}'),
+                              const SizedBox(height: 8),
+                              if (product.skus.isNotEmpty) ...[
+                                const Text('SKUs:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 4),
+                                ...product.skus.map((sku) => Padding(
+                                      padding: const EdgeInsets.only(left: 16, bottom: 4),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('• ${sku.title}', style: const TextStyle(fontWeight: FontWeight.w500)),
+                                          Text('  Store ID: ${sku.storeId}'),
+                                          Text('  Price: ${sku.price.formattedPrice}'),
+                                          if (sku.description.isNotEmpty) Text('  Description: ${sku.description}'),
+                                          if (sku.subscriptionInfo != null) ...[
+                                            const Text('  Subscription Info:',
+                                                style: TextStyle(fontWeight: FontWeight.w500)),
+                                            Text('    Billing Period: ${sku.subscriptionInfo!.billingPeriod} ${sku.subscriptionInfo!.billingPeriodUnit.name}'),
+                                            if (sku.subscriptionInfo!.hasTrialPeriod)
+                                              Text(
+                                                  '    Trial Period: ${sku.subscriptionInfo!.trialPeriod} ${sku.subscriptionInfo!.trialPeriodUnit.name}'),
+                                          ],
+                                        ],
+                                      ),
+                                    )),
+                              ] else
+                                const Text('No SKUs available'),
                             ],
                           ),
                         ),
@@ -147,19 +193,18 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Microsoft Store Products & Licenses Demo', 
-            style: TextStyle(fontWeight: FontWeight.bold)),
+          title: const Text('Microsoft Store Products & Licenses Demo', style: TextStyle(fontWeight: FontWeight.bold)),
         ),
         body: LayoutBuilder(
           builder: (context, constraints) {
             // Account for divider width
             const dividerWidth = 1.0;
             double availableWidth = constraints.maxWidth - dividerWidth;
-            
+
             // Calculate column widths based on available space
             double leftColumnWidth = availableWidth * 0.4;
             double rightColumnWidth = availableWidth * 0.6;
-            
+
             // Ensure minimum widths but adjust if needed to fit screen
             if (leftColumnWidth < 300 && availableWidth > 700) {
               leftColumnWidth = 300;
@@ -169,13 +214,15 @@ class _MyAppState extends State<MyApp> {
               leftColumnWidth = availableWidth * 0.4;
               rightColumnWidth = availableWidth * 0.6;
             }
-            
+
             return Row(
               children: [
                 // Left column: License info
                 SizedBox(
                   width: leftColumnWidth,
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(flex: 1, child: appLicenseInfo),
                       Expanded(flex: 2, child: addonLicencesWidget),

@@ -137,13 +137,20 @@ namespace windows_store
                   winrt::to_string(L"14.00"),
                   winrt::to_string(L"14.00"),
                   winrt::to_string(L"14.00"));
+              auto subscriptionInfo = new StoreSubscriptionInfoInner(
+                1,
+                StoreSubscriptionBillingPeriodUnit::kYear,
+                true /* trial */,
+                7,
+                StoreSubscriptionBillingPeriodUnit::kDay
+              );
               StoreProductSkuInner skuInner = StoreProductSkuInner(
                 winrt::to_string(L"SkuStoreId1"),
                 false /*is trial*/,
                 true /*is subscription*/,
                 winrt::to_string(L"SKU Description"),
                 winrt::to_string(L"SKU Title"),
-                nullptr,
+                subscriptionInfo,
                 skuPrice
               );
               productSkuList.push_back(flutter::CustomEncodableValue(std::move(skuInner)));
