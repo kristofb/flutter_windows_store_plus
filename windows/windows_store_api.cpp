@@ -53,7 +53,7 @@ namespace windows_store
               );
           addonLicenseList.push_back(flutter::CustomEncodableValue(std::move(addonLicense)));
         }
-#ifdef GENERATE_LICENSE_TEST_DATA
+#if GENERATE_LICENSE_TEST_DATA
           std::cout << "Generating test data for add-on licenses..." << std::endl;
           {
             // Generate a date time for tomorrow
@@ -115,7 +115,7 @@ namespace windows_store
           winrt::hresult hr = productsResult.ExtendedError();
           if (hr.value != S_OK)
           {
-#ifdef GENERATE_LICENSE_TEST_DATA
+#if GENERATE_LICENSE_TEST_DATA
             std::cout << "Generating test data for associated add-ons..." << std::endl;
             auto usd = winrt::to_string(L"USD");
             auto tomorrow = winrt::clock::now() + std::chrono::hours(24);

@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#define GENERATE_LICENSE_TEST_DATA true
+#define GENERATE_LICENSE_TEST_DATA false
 
 namespace windows_store
 {
