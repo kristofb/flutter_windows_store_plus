@@ -1,7 +1,7 @@
 name: windows_store
-description: A flutter plugin for retrieving license information from Microsoft Store apps.
+description: A flutter plugin for retrieving license information from Microsoft Store apps, retrieving add-ons, and making in-app purchases.
 version: 1.0.0
-repository: https://github.com/SongbookPro/flutter_windows_store
+repository: https://github.com/kristofb/flutter_windows_store_plus
 
 environment:
   sdk: '>=3.6.0 <4.0.0'
