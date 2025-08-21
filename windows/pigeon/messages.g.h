@@ -70,6 +70,15 @@ enum class StoreProductKind {
   kDurable = 4
 };
 
+enum class StoreSubscriptionBillingPeriodUnit {
+  kMinute = 0,
+  kHour = 1,
+  kDay = 2,
+  kWeek = 3,
+  kMonth = 4,
+  kYear = 5
+};
+
 
 // Gets valid license info for durables add-on that is associated with the current app
 // Invalid license are not included, licenses for consumable add-ons are not included.
@@ -207,6 +216,7 @@ class StorePriceInner {
  private:
   static StorePriceInner FromEncodableList(const flutter::EncodableList& list);
   flutter::EncodableList ToEncodableList() const;
+  friend class StoreProductSkuInner;
   friend class StoreProductInner;
   friend class WindowsStoreApi;
   friend class PigeonInternalCodecSerializer;
@@ -216,6 +226,129 @@ class StorePriceInner {
   std::string formatted_base_price_;
   std::string formatted_price_;
   std::string formatted_recurrence_price_;
+};
+
+
+// Provides subscription info for a product SKU that represents a subscription with recurring billing.
+// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storesubscriptioninfo?view=winrt-26100
+//
+// Generated class from Pigeon that represents data sent in messages.
+class StoreSubscriptionInfoInner {
+ public:
+  // Constructs an object setting all fields.
+  explicit StoreSubscriptionInfoInner(
+    int64_t billing_period,
+    const StoreSubscriptionBillingPeriodUnit& billing_period_unit,
+    bool has_trial_period,
+    int64_t trial_period,
+    const StoreSubscriptionBillingPeriodUnit& trial_period_unit);
+
+  // Duration of the billing period for a subscription, in the units specified by the BillingPeriodUnit property.
+  int64_t billing_period() const;
+  void set_billing_period(int64_t value_arg);
+
+  // Units of the billing period for a subscription.
+  const StoreSubscriptionBillingPeriodUnit& billing_period_unit() const;
+  void set_billing_period_unit(const StoreSubscriptionBillingPeriodUnit& value_arg);
+
+  // Value that indicates whether the subscription contains a trial period.
+  bool has_trial_period() const;
+  void set_has_trial_period(bool value_arg);
+
+  // Duration of the trial period for the subscription, in the units specified by the TrialPeriodUnit property. To determine whether the subscription has a trial period, use the HasTrialPeriod property.
+  int64_t trial_period() const;
+  void set_trial_period(int64_t value_arg);
+
+  // Units of the trial period for the subscription
+  const StoreSubscriptionBillingPeriodUnit& trial_period_unit() const;
+  void set_trial_period_unit(const StoreSubscriptionBillingPeriodUnit& value_arg);
+
+ private:
+  static StoreSubscriptionInfoInner FromEncodableList(const flutter::EncodableList& list);
+  flutter::EncodableList ToEncodableList() const;
+  friend class StoreProductSkuInner;
+  friend class WindowsStoreApi;
+  friend class PigeonInternalCodecSerializer;
+  int64_t billing_period_;
+  StoreSubscriptionBillingPeriodUnit billing_period_unit_;
+  bool has_trial_period_;
+  int64_t trial_period_;
+  StoreSubscriptionBillingPeriodUnit trial_period_unit_;
+};
+
+
+// Provides info for a stock keeping unit (SKU) of a product in the Microsoft Store
+// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storesku?view=winrt-26100
+//
+// Generated class from Pigeon that represents data sent in messages.
+class StoreProductSkuInner {
+ public:
+  // Constructs an object setting all non-nullable fields.
+  explicit StoreProductSkuInner(
+    const std::string& store_id,
+    bool is_trial,
+    bool is_subscription,
+    const std::string& description,
+    const std::string& title,
+    const StorePriceInner& price);
+
+  // Constructs an object setting all fields.
+  explicit StoreProductSkuInner(
+    const std::string& store_id,
+    bool is_trial,
+    bool is_subscription,
+    const std::string& description,
+    const std::string& title,
+    const StoreSubscriptionInfoInner* subscription_info,
+    const StorePriceInner& price);
+
+  ~StoreProductSkuInner() = default;
+  StoreProductSkuInner(const StoreProductSkuInner& other);
+  StoreProductSkuInner& operator=(const StoreProductSkuInner& other);
+  StoreProductSkuInner(StoreProductSkuInner&& other) = default;
+  StoreProductSkuInner& operator=(StoreProductSkuInner&& other) noexcept = default;
+  // Store ID of this product SKU
+  const std::string& store_id() const;
+  void set_store_id(std::string_view value_arg);
+
+  // Indicates whether this product SKU is a trial SKU
+  bool is_trial() const;
+  void set_is_trial(bool value_arg);
+
+  // Indicates whether this product SKU is a subscription SKU
+  bool is_subscription() const;
+  void set_is_subscription(bool value_arg);
+
+  // Product SKU description from the Microsoft Store listing.
+  const std::string& description() const;
+  void set_description(std::string_view value_arg);
+
+  // Product SKU title from the Microsoft Store listing.
+  const std::string& title() const;
+  void set_title(std::string_view value_arg);
+
+  // Subscription information for this product SKU, if this product SKU is a subscription with recurring billing. 
+  // To determine whether this product SKU is a subscription, use the IsSubscription property.
+  const StoreSubscriptionInfoInner* subscription_info() const;
+  void set_subscription_info(const StoreSubscriptionInfoInner* value_arg);
+  void set_subscription_info(const StoreSubscriptionInfoInner& value_arg);
+
+  // Price of the default availability for this product SKU.
+  const StorePriceInner& price() const;
+  void set_price(const StorePriceInner& value_arg);
+
+ private:
+  static StoreProductSkuInner FromEncodableList(const flutter::EncodableList& list);
+  flutter::EncodableList ToEncodableList() const;
+  friend class WindowsStoreApi;
+  friend class PigeonInternalCodecSerializer;
+  std::string store_id_;
+  bool is_trial_;
+  bool is_subscription_;
+  std::string description_;
+  std::string title_;
+  std::unique_ptr<StoreSubscriptionInfoInner> subscription_info_;
+  std::unique_ptr<StorePriceInner> price_;
 };
 
 
@@ -232,7 +365,8 @@ class StoreProductInner {
     const std::string& title,
     const std::string& in_app_offer_token,
     const StoreProductKind& product_kind,
-    const StorePriceInner& price);
+    const StorePriceInner& price,
+    const flutter::EncodableList& skus);
 
   ~StoreProductInner() = default;
   StoreProductInner(const StoreProductInner& other);
@@ -263,6 +397,9 @@ class StoreProductInner {
   const StorePriceInner& price() const;
   void set_price(const StorePriceInner& value_arg);
 
+  const flutter::EncodableList& skus() const;
+  void set_skus(const flutter::EncodableList& value_arg);
+
  private:
   static StoreProductInner FromEncodableList(const flutter::EncodableList& list);
   flutter::EncodableList ToEncodableList() const;
@@ -274,6 +411,7 @@ class StoreProductInner {
   std::string in_app_offer_token_;
   StoreProductKind product_kind_;
   std::unique_ptr<StorePriceInner> price_;
+  flutter::EncodableList skus_;
 };
 
 

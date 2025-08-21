@@ -85,4 +85,28 @@ namespace windows_store
       return std::string(buffer);
   }
 
+  StoreSubscriptionBillingPeriodUnit getSubscriptionBillingPeriodUnit(const winrt::Windows::Services::Store::StoreDurationUnit &unit)
+  {
+    switch (unit)
+    {
+    case winrt::Windows::Services::Store::StoreDurationUnit::Minute:
+      return StoreSubscriptionBillingPeriodUnit::kMinute;
+    case winrt::Windows::Services::Store::StoreDurationUnit::Hour:
+      return StoreSubscriptionBillingPeriodUnit::kHour;
+    case winrt::Windows::Services::Store::StoreDurationUnit::Day:
+      return StoreSubscriptionBillingPeriodUnit::kDay;
+    case winrt::Windows::Services::Store::StoreDurationUnit::Week:
+      return StoreSubscriptionBillingPeriodUnit::kWeek;
+    case winrt::Windows::Services::Store::StoreDurationUnit::Month:
+      return StoreSubscriptionBillingPeriodUnit::kMonth;
+    case winrt::Windows::Services::Store::StoreDurationUnit::Year:
+      return StoreSubscriptionBillingPeriodUnit::kYear;
+    default:
+        std::cerr << "Unknown StoreDurationUnit: " << (int32_t)unit << std::endl;
+        return StoreSubscriptionBillingPeriodUnit::kMonth;
+
+    }
+  }
+
+
 } // namespace windows_store

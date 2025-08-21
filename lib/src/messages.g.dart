@@ -43,6 +43,15 @@ enum StoreProductKind {
   durable,
 }
 
+enum StoreSubscriptionBillingPeriodUnit {
+  minute,
+  hour,
+  day,
+  week,
+  month,
+  year,
+}
+
 /// Gets valid license info for durables add-on that is associated with the current app
 /// Invalid license are not included, licenses for consumable add-ons are not included.
 class AddOnLicenseInner {
@@ -253,6 +262,155 @@ class StorePriceInner {
 ;
 }
 
+/// Provides subscription info for a product SKU that represents a subscription with recurring billing.
+/// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storesubscriptioninfo?view=winrt-26100
+class StoreSubscriptionInfoInner {
+  StoreSubscriptionInfoInner({
+    required this.billingPeriod,
+    required this.billingPeriodUnit,
+    required this.hasTrialPeriod,
+    required this.trialPeriod,
+    required this.trialPeriodUnit,
+  });
+
+  /// Duration of the billing period for a subscription, in the units specified by the BillingPeriodUnit property.
+  int billingPeriod;
+
+  /// Units of the billing period for a subscription.
+  StoreSubscriptionBillingPeriodUnit billingPeriodUnit;
+
+  /// Value that indicates whether the subscription contains a trial period.
+  bool hasTrialPeriod;
+
+  /// Duration of the trial period for the subscription, in the units specified by the TrialPeriodUnit property. To determine whether the subscription has a trial period, use the HasTrialPeriod property.
+  int trialPeriod;
+
+  /// Units of the trial period for the subscription
+  StoreSubscriptionBillingPeriodUnit trialPeriodUnit;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      billingPeriod,
+      billingPeriodUnit,
+      hasTrialPeriod,
+      trialPeriod,
+      trialPeriodUnit,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static StoreSubscriptionInfoInner decode(Object result) {
+    result as List<Object?>;
+    return StoreSubscriptionInfoInner(
+      billingPeriod: result[0]! as int,
+      billingPeriodUnit: result[1]! as StoreSubscriptionBillingPeriodUnit,
+      hasTrialPeriod: result[2]! as bool,
+      trialPeriod: result[3]! as int,
+      trialPeriodUnit: result[4]! as StoreSubscriptionBillingPeriodUnit,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! StoreSubscriptionInfoInner || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(encode(), other.encode());
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList())
+;
+}
+
+/// Provides info for a stock keeping unit (SKU) of a product in the Microsoft Store
+/// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storesku?view=winrt-26100
+class StoreProductSkuInner {
+  StoreProductSkuInner({
+    required this.storeId,
+    required this.isTrial,
+    required this.isSubscription,
+    required this.description,
+    required this.title,
+    this.subscriptionInfo,
+    required this.price,
+  });
+
+  /// Store ID of this product SKU
+  String storeId;
+
+  /// Indicates whether this product SKU is a trial SKU
+  bool isTrial;
+
+  /// Indicates whether this product SKU is a subscription SKU
+  bool isSubscription;
+
+  /// Product SKU description from the Microsoft Store listing.
+  String description;
+
+  /// Product SKU title from the Microsoft Store listing.
+  String title;
+
+  /// Subscription information for this product SKU, if this product SKU is a subscription with recurring billing. 
+  /// To determine whether this product SKU is a subscription, use the IsSubscription property.
+  StoreSubscriptionInfoInner? subscriptionInfo;
+
+  /// Price of the default availability for this product SKU.
+  StorePriceInner price;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      storeId,
+      isTrial,
+      isSubscription,
+      description,
+      title,
+      subscriptionInfo,
+      price,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static StoreProductSkuInner decode(Object result) {
+    result as List<Object?>;
+    return StoreProductSkuInner(
+      storeId: result[0]! as String,
+      isTrial: result[1]! as bool,
+      isSubscription: result[2]! as bool,
+      description: result[3]! as String,
+      title: result[4]! as String,
+      subscriptionInfo: result[5] as StoreSubscriptionInfoInner?,
+      price: result[6]! as StorePriceInner,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! StoreProductSkuInner || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(encode(), other.encode());
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList())
+;
+}
+
 /// Add-on associated to the application in the Microsoft Store
 /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeproduct?view=winrt-26100
 class StoreProductInner {
@@ -263,6 +421,7 @@ class StoreProductInner {
     required this.inAppOfferToken,
     required this.productKind,
     required this.price,
+    required this.skus,
   });
 
   /// Gets the Store ID for this product. For an add-on, this property corresponds to the Store ID that is available on the overview page for the add-on.
@@ -283,6 +442,8 @@ class StoreProductInner {
   /// Gets the price for the default SKU and availability for the product.
   StorePriceInner price;
 
+  List<StoreProductSkuInner> skus;
+
   List<Object?> _toList() {
     return <Object?>[
       storeId,
@@ -291,6 +452,7 @@ class StoreProductInner {
       inAppOfferToken,
       productKind,
       price,
+      skus,
     ];
   }
 
@@ -306,6 +468,7 @@ class StoreProductInner {
       inAppOfferToken: result[3]! as String,
       productKind: result[4]! as StoreProductKind,
       price: result[5]! as StorePriceInner,
+      skus: (result[6] as List<Object?>?)!.cast<StoreProductSkuInner>(),
     );
   }
 
@@ -379,20 +542,29 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is StoreProductKind) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    }    else if (value is AddOnLicenseInner) {
+    }    else if (value is StoreSubscriptionBillingPeriodUnit) {
       buffer.putUint8(130);
-      writeValue(buffer, value.encode());
-    }    else if (value is StoreAppLicenseInner) {
+      writeValue(buffer, value.index);
+    }    else if (value is AddOnLicenseInner) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    }    else if (value is StorePriceInner) {
+    }    else if (value is StoreAppLicenseInner) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    }    else if (value is StoreProductInner) {
+    }    else if (value is StorePriceInner) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    }    else if (value is AssociatedStoreProductsInner) {
+    }    else if (value is StoreSubscriptionInfoInner) {
       buffer.putUint8(134);
+      writeValue(buffer, value.encode());
+    }    else if (value is StoreProductSkuInner) {
+      buffer.putUint8(135);
+      writeValue(buffer, value.encode());
+    }    else if (value is StoreProductInner) {
+      buffer.putUint8(136);
+      writeValue(buffer, value.encode());
+    }    else if (value is AssociatedStoreProductsInner) {
+      buffer.putUint8(137);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -406,14 +578,21 @@ class _PigeonCodec extends StandardMessageCodec {
         final int? value = readValue(buffer) as int?;
         return value == null ? null : StoreProductKind.values[value];
       case 130: 
-        return AddOnLicenseInner.decode(readValue(buffer)!);
+        final int? value = readValue(buffer) as int?;
+        return value == null ? null : StoreSubscriptionBillingPeriodUnit.values[value];
       case 131: 
-        return StoreAppLicenseInner.decode(readValue(buffer)!);
+        return AddOnLicenseInner.decode(readValue(buffer)!);
       case 132: 
-        return StorePriceInner.decode(readValue(buffer)!);
+        return StoreAppLicenseInner.decode(readValue(buffer)!);
       case 133: 
-        return StoreProductInner.decode(readValue(buffer)!);
+        return StorePriceInner.decode(readValue(buffer)!);
       case 134: 
+        return StoreSubscriptionInfoInner.decode(readValue(buffer)!);
+      case 135: 
+        return StoreProductSkuInner.decode(readValue(buffer)!);
+      case 136: 
+        return StoreProductInner.decode(readValue(buffer)!);
+      case 137: 
         return AssociatedStoreProductsInner.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);

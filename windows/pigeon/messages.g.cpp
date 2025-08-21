@@ -281,6 +281,233 @@ StorePriceInner StorePriceInner::FromEncodableList(const EncodableList& list) {
   return decoded;
 }
 
+// StoreSubscriptionInfoInner
+
+StoreSubscriptionInfoInner::StoreSubscriptionInfoInner(
+  int64_t billing_period,
+  const StoreSubscriptionBillingPeriodUnit& billing_period_unit,
+  bool has_trial_period,
+  int64_t trial_period,
+  const StoreSubscriptionBillingPeriodUnit& trial_period_unit)
+ : billing_period_(billing_period),
+    billing_period_unit_(billing_period_unit),
+    has_trial_period_(has_trial_period),
+    trial_period_(trial_period),
+    trial_period_unit_(trial_period_unit) {}
+
+int64_t StoreSubscriptionInfoInner::billing_period() const {
+  return billing_period_;
+}
+
+void StoreSubscriptionInfoInner::set_billing_period(int64_t value_arg) {
+  billing_period_ = value_arg;
+}
+
+
+const StoreSubscriptionBillingPeriodUnit& StoreSubscriptionInfoInner::billing_period_unit() const {
+  return billing_period_unit_;
+}
+
+void StoreSubscriptionInfoInner::set_billing_period_unit(const StoreSubscriptionBillingPeriodUnit& value_arg) {
+  billing_period_unit_ = value_arg;
+}
+
+
+bool StoreSubscriptionInfoInner::has_trial_period() const {
+  return has_trial_period_;
+}
+
+void StoreSubscriptionInfoInner::set_has_trial_period(bool value_arg) {
+  has_trial_period_ = value_arg;
+}
+
+
+int64_t StoreSubscriptionInfoInner::trial_period() const {
+  return trial_period_;
+}
+
+void StoreSubscriptionInfoInner::set_trial_period(int64_t value_arg) {
+  trial_period_ = value_arg;
+}
+
+
+const StoreSubscriptionBillingPeriodUnit& StoreSubscriptionInfoInner::trial_period_unit() const {
+  return trial_period_unit_;
+}
+
+void StoreSubscriptionInfoInner::set_trial_period_unit(const StoreSubscriptionBillingPeriodUnit& value_arg) {
+  trial_period_unit_ = value_arg;
+}
+
+
+EncodableList StoreSubscriptionInfoInner::ToEncodableList() const {
+  EncodableList list;
+  list.reserve(5);
+  list.push_back(EncodableValue(billing_period_));
+  list.push_back(CustomEncodableValue(billing_period_unit_));
+  list.push_back(EncodableValue(has_trial_period_));
+  list.push_back(EncodableValue(trial_period_));
+  list.push_back(CustomEncodableValue(trial_period_unit_));
+  return list;
+}
+
+StoreSubscriptionInfoInner StoreSubscriptionInfoInner::FromEncodableList(const EncodableList& list) {
+  StoreSubscriptionInfoInner decoded(
+    std::get<int64_t>(list[0]),
+    std::any_cast<const StoreSubscriptionBillingPeriodUnit&>(std::get<CustomEncodableValue>(list[1])),
+    std::get<bool>(list[2]),
+    std::get<int64_t>(list[3]),
+    std::any_cast<const StoreSubscriptionBillingPeriodUnit&>(std::get<CustomEncodableValue>(list[4])));
+  return decoded;
+}
+
+// StoreProductSkuInner
+
+StoreProductSkuInner::StoreProductSkuInner(
+  const std::string& store_id,
+  bool is_trial,
+  bool is_subscription,
+  const std::string& description,
+  const std::string& title,
+  const StorePriceInner& price)
+ : store_id_(store_id),
+    is_trial_(is_trial),
+    is_subscription_(is_subscription),
+    description_(description),
+    title_(title),
+    price_(std::make_unique<StorePriceInner>(price)) {}
+
+StoreProductSkuInner::StoreProductSkuInner(
+  const std::string& store_id,
+  bool is_trial,
+  bool is_subscription,
+  const std::string& description,
+  const std::string& title,
+  const StoreSubscriptionInfoInner* subscription_info,
+  const StorePriceInner& price)
+ : store_id_(store_id),
+    is_trial_(is_trial),
+    is_subscription_(is_subscription),
+    description_(description),
+    title_(title),
+    subscription_info_(subscription_info ? std::make_unique<StoreSubscriptionInfoInner>(*subscription_info) : nullptr),
+    price_(std::make_unique<StorePriceInner>(price)) {}
+
+StoreProductSkuInner::StoreProductSkuInner(const StoreProductSkuInner& other)
+ : store_id_(other.store_id_),
+    is_trial_(other.is_trial_),
+    is_subscription_(other.is_subscription_),
+    description_(other.description_),
+    title_(other.title_),
+    subscription_info_(other.subscription_info_ ? std::make_unique<StoreSubscriptionInfoInner>(*other.subscription_info_) : nullptr),
+    price_(std::make_unique<StorePriceInner>(*other.price_)) {}
+
+StoreProductSkuInner& StoreProductSkuInner::operator=(const StoreProductSkuInner& other) {
+  store_id_ = other.store_id_;
+  is_trial_ = other.is_trial_;
+  is_subscription_ = other.is_subscription_;
+  description_ = other.description_;
+  title_ = other.title_;
+  subscription_info_ = other.subscription_info_ ? std::make_unique<StoreSubscriptionInfoInner>(*other.subscription_info_) : nullptr;
+  price_ = std::make_unique<StorePriceInner>(*other.price_);
+  return *this;
+}
+
+const std::string& StoreProductSkuInner::store_id() const {
+  return store_id_;
+}
+
+void StoreProductSkuInner::set_store_id(std::string_view value_arg) {
+  store_id_ = value_arg;
+}
+
+
+bool StoreProductSkuInner::is_trial() const {
+  return is_trial_;
+}
+
+void StoreProductSkuInner::set_is_trial(bool value_arg) {
+  is_trial_ = value_arg;
+}
+
+
+bool StoreProductSkuInner::is_subscription() const {
+  return is_subscription_;
+}
+
+void StoreProductSkuInner::set_is_subscription(bool value_arg) {
+  is_subscription_ = value_arg;
+}
+
+
+const std::string& StoreProductSkuInner::description() const {
+  return description_;
+}
+
+void StoreProductSkuInner::set_description(std::string_view value_arg) {
+  description_ = value_arg;
+}
+
+
+const std::string& StoreProductSkuInner::title() const {
+  return title_;
+}
+
+void StoreProductSkuInner::set_title(std::string_view value_arg) {
+  title_ = value_arg;
+}
+
+
+const StoreSubscriptionInfoInner* StoreProductSkuInner::subscription_info() const {
+  return subscription_info_.get();
+}
+
+void StoreProductSkuInner::set_subscription_info(const StoreSubscriptionInfoInner* value_arg) {
+  subscription_info_ = value_arg ? std::make_unique<StoreSubscriptionInfoInner>(*value_arg) : nullptr;
+}
+
+void StoreProductSkuInner::set_subscription_info(const StoreSubscriptionInfoInner& value_arg) {
+  subscription_info_ = std::make_unique<StoreSubscriptionInfoInner>(value_arg);
+}
+
+
+const StorePriceInner& StoreProductSkuInner::price() const {
+  return *price_;
+}
+
+void StoreProductSkuInner::set_price(const StorePriceInner& value_arg) {
+  price_ = std::make_unique<StorePriceInner>(value_arg);
+}
+
+
+EncodableList StoreProductSkuInner::ToEncodableList() const {
+  EncodableList list;
+  list.reserve(7);
+  list.push_back(EncodableValue(store_id_));
+  list.push_back(EncodableValue(is_trial_));
+  list.push_back(EncodableValue(is_subscription_));
+  list.push_back(EncodableValue(description_));
+  list.push_back(EncodableValue(title_));
+  list.push_back(subscription_info_ ? CustomEncodableValue(*subscription_info_) : EncodableValue());
+  list.push_back(CustomEncodableValue(*price_));
+  return list;
+}
+
+StoreProductSkuInner StoreProductSkuInner::FromEncodableList(const EncodableList& list) {
+  StoreProductSkuInner decoded(
+    std::get<std::string>(list[0]),
+    std::get<bool>(list[1]),
+    std::get<bool>(list[2]),
+    std::get<std::string>(list[3]),
+    std::get<std::string>(list[4]),
+    std::any_cast<const StorePriceInner&>(std::get<CustomEncodableValue>(list[6])));
+  auto& encodable_subscription_info = list[5];
+  if (!encodable_subscription_info.IsNull()) {
+    decoded.set_subscription_info(std::any_cast<const StoreSubscriptionInfoInner&>(std::get<CustomEncodableValue>(encodable_subscription_info)));
+  }
+  return decoded;
+}
+
 // StoreProductInner
 
 StoreProductInner::StoreProductInner(
@@ -289,13 +516,15 @@ StoreProductInner::StoreProductInner(
   const std::string& title,
   const std::string& in_app_offer_token,
   const StoreProductKind& product_kind,
-  const StorePriceInner& price)
+  const StorePriceInner& price,
+  const EncodableList& skus)
  : store_id_(store_id),
     description_(description),
     title_(title),
     in_app_offer_token_(in_app_offer_token),
     product_kind_(product_kind),
-    price_(std::make_unique<StorePriceInner>(price)) {}
+    price_(std::make_unique<StorePriceInner>(price)),
+    skus_(skus) {}
 
 StoreProductInner::StoreProductInner(const StoreProductInner& other)
  : store_id_(other.store_id_),
@@ -303,7 +532,8 @@ StoreProductInner::StoreProductInner(const StoreProductInner& other)
     title_(other.title_),
     in_app_offer_token_(other.in_app_offer_token_),
     product_kind_(other.product_kind_),
-    price_(std::make_unique<StorePriceInner>(*other.price_)) {}
+    price_(std::make_unique<StorePriceInner>(*other.price_)),
+    skus_(other.skus_) {}
 
 StoreProductInner& StoreProductInner::operator=(const StoreProductInner& other) {
   store_id_ = other.store_id_;
@@ -312,6 +542,7 @@ StoreProductInner& StoreProductInner::operator=(const StoreProductInner& other) 
   in_app_offer_token_ = other.in_app_offer_token_;
   product_kind_ = other.product_kind_;
   price_ = std::make_unique<StorePriceInner>(*other.price_);
+  skus_ = other.skus_;
   return *this;
 }
 
@@ -369,15 +600,25 @@ void StoreProductInner::set_price(const StorePriceInner& value_arg) {
 }
 
 
+const EncodableList& StoreProductInner::skus() const {
+  return skus_;
+}
+
+void StoreProductInner::set_skus(const EncodableList& value_arg) {
+  skus_ = value_arg;
+}
+
+
 EncodableList StoreProductInner::ToEncodableList() const {
   EncodableList list;
-  list.reserve(6);
+  list.reserve(7);
   list.push_back(EncodableValue(store_id_));
   list.push_back(EncodableValue(description_));
   list.push_back(EncodableValue(title_));
   list.push_back(EncodableValue(in_app_offer_token_));
   list.push_back(CustomEncodableValue(product_kind_));
   list.push_back(CustomEncodableValue(*price_));
+  list.push_back(EncodableValue(skus_));
   return list;
 }
 
@@ -388,7 +629,8 @@ StoreProductInner StoreProductInner::FromEncodableList(const EncodableList& list
     std::get<std::string>(list[2]),
     std::get<std::string>(list[3]),
     std::any_cast<const StoreProductKind&>(std::get<CustomEncodableValue>(list[4])),
-    std::any_cast<const StorePriceInner&>(std::get<CustomEncodableValue>(list[5])));
+    std::any_cast<const StorePriceInner&>(std::get<CustomEncodableValue>(list[5])),
+    std::get<EncodableList>(list[6]));
   return decoded;
 }
 
@@ -432,18 +674,29 @@ EncodableValue PigeonInternalCodecSerializer::ReadValueOfType(
         return encodable_enum_arg.IsNull() ? EncodableValue() : CustomEncodableValue(static_cast<StoreProductKind>(enum_arg_value));
       }
     case 130: {
-        return CustomEncodableValue(AddOnLicenseInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+        const auto& encodable_enum_arg = ReadValue(stream);
+        const int64_t enum_arg_value = encodable_enum_arg.IsNull() ? 0 : encodable_enum_arg.LongValue();
+        return encodable_enum_arg.IsNull() ? EncodableValue() : CustomEncodableValue(static_cast<StoreSubscriptionBillingPeriodUnit>(enum_arg_value));
       }
     case 131: {
-        return CustomEncodableValue(StoreAppLicenseInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+        return CustomEncodableValue(AddOnLicenseInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
       }
     case 132: {
-        return CustomEncodableValue(StorePriceInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+        return CustomEncodableValue(StoreAppLicenseInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
       }
     case 133: {
-        return CustomEncodableValue(StoreProductInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+        return CustomEncodableValue(StorePriceInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
       }
     case 134: {
+        return CustomEncodableValue(StoreSubscriptionInfoInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+      }
+    case 135: {
+        return CustomEncodableValue(StoreProductSkuInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+      }
+    case 136: {
+        return CustomEncodableValue(StoreProductInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+      }
+    case 137: {
         return CustomEncodableValue(AssociatedStoreProductsInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
       }
     default:
@@ -460,28 +713,43 @@ void PigeonInternalCodecSerializer::WriteValue(
       WriteValue(EncodableValue(static_cast<int>(std::any_cast<StoreProductKind>(*custom_value))), stream);
       return;
     }
-    if (custom_value->type() == typeid(AddOnLicenseInner)) {
+    if (custom_value->type() == typeid(StoreSubscriptionBillingPeriodUnit)) {
       stream->WriteByte(130);
+      WriteValue(EncodableValue(static_cast<int>(std::any_cast<StoreSubscriptionBillingPeriodUnit>(*custom_value))), stream);
+      return;
+    }
+    if (custom_value->type() == typeid(AddOnLicenseInner)) {
+      stream->WriteByte(131);
       WriteValue(EncodableValue(std::any_cast<AddOnLicenseInner>(*custom_value).ToEncodableList()), stream);
       return;
     }
     if (custom_value->type() == typeid(StoreAppLicenseInner)) {
-      stream->WriteByte(131);
+      stream->WriteByte(132);
       WriteValue(EncodableValue(std::any_cast<StoreAppLicenseInner>(*custom_value).ToEncodableList()), stream);
       return;
     }
     if (custom_value->type() == typeid(StorePriceInner)) {
-      stream->WriteByte(132);
+      stream->WriteByte(133);
       WriteValue(EncodableValue(std::any_cast<StorePriceInner>(*custom_value).ToEncodableList()), stream);
       return;
     }
+    if (custom_value->type() == typeid(StoreSubscriptionInfoInner)) {
+      stream->WriteByte(134);
+      WriteValue(EncodableValue(std::any_cast<StoreSubscriptionInfoInner>(*custom_value).ToEncodableList()), stream);
+      return;
+    }
+    if (custom_value->type() == typeid(StoreProductSkuInner)) {
+      stream->WriteByte(135);
+      WriteValue(EncodableValue(std::any_cast<StoreProductSkuInner>(*custom_value).ToEncodableList()), stream);
+      return;
+    }
     if (custom_value->type() == typeid(StoreProductInner)) {
-      stream->WriteByte(133);
+      stream->WriteByte(136);
       WriteValue(EncodableValue(std::any_cast<StoreProductInner>(*custom_value).ToEncodableList()), stream);
       return;
     }
     if (custom_value->type() == typeid(AssociatedStoreProductsInner)) {
-      stream->WriteByte(134);
+      stream->WriteByte(137);
       WriteValue(EncodableValue(std::any_cast<AssociatedStoreProductsInner>(*custom_value).ToEncodableList()), stream);
       return;
     }

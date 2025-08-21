@@ -23,6 +23,7 @@ using namespace winrt;
 using namespace Windows::Services;
 using namespace Windows::Foundation;
 using namespace Concurrency;
+using namespace Windows::Services::Store;
 
 namespace windows_store
 {
@@ -34,6 +35,8 @@ namespace windows_store
       try
       {
         Store::StoreContext storeContext = Store::StoreContext::GetDefault();
+
+        // Get application license
         auto licenseAsync = storeContext.GetAppLicenseAsync();
         auto license = licenseAsync.get();
 
@@ -50,7 +53,7 @@ namespace windows_store
               );
           addonLicenseList.push_back(flutter::CustomEncodableValue(std::move(addonLicense)));
         }
-        #ifdef GENERATE_LICENSE_TEST_DATA
+#ifdef GENERATE_LICENSE_TEST_DATA
           std::cout << "Generating test data for add-on licenses..." << std::endl;
           {
             // Generate a date time for tomorrow
@@ -72,7 +75,7 @@ namespace windows_store
                 );
             addonLicenseList.push_back(flutter::CustomEncodableValue(std::move(addonLicense)));
           }
-        #endif
+#endif
 
         auto licenseInfo = StoreAppLicenseInner(
             license.IsActive(),
@@ -112,7 +115,7 @@ namespace windows_store
           winrt::hresult hr = productsResult.ExtendedError();
           if (hr.value != S_OK)
           {
-            #ifdef GENERATE_LICENSE_TEST_DATA
+#ifdef GENERATE_LICENSE_TEST_DATA
             std::cout << "Generating test data for associated add-ons..." << std::endl;
             auto usd = winrt::to_string(L"USD");
             auto tomorrow = winrt::clock::now() + std::chrono::hours(24);
@@ -125,6 +128,25 @@ namespace windows_store
                   winrt::to_string(L"14.00"),
                   winrt::to_string(L"14.00"),
                   winrt::to_string(L"14.00"));
+                  
+              flutter::EncodableList productSkuList;
+              auto skuPrice = StorePriceInner(
+                  usd,
+                  true /* on sale */,
+                  dateTimeToISO8601(tomorrow), /* sale end date */
+                  winrt::to_string(L"14.00"),
+                  winrt::to_string(L"14.00"),
+                  winrt::to_string(L"14.00"));
+              StoreProductSkuInner skuInner = StoreProductSkuInner(
+                winrt::to_string(L"SkuStoreId1"),
+                false /*is trial*/,
+                true /*is subscription*/,
+                winrt::to_string(L"SKU Description"),
+                winrt::to_string(L"SKU Title"),
+                nullptr,
+                skuPrice
+              );
+              productSkuList.push_back(flutter::CustomEncodableValue(std::move(skuInner)));
 
               StoreProductInner productInner = StoreProductInner(
                 winrt::to_string(L"SkuStoreId1"),
@@ -132,8 +154,10 @@ namespace windows_store
                 winrt::to_string(L"Product 1"),
                 winrt::to_string(L"InAppOfferToken1"),
                 windows_store::StoreProductKind::kDurable,
-                priceInner);
-                
+                priceInner,
+                productSkuList
+              );
+
               productList.push_back(flutter::CustomEncodableValue(std::move(productInner)));
             }
             {
@@ -145,26 +169,48 @@ namespace windows_store
                   winrt::to_string(L"110.00"),
                   winrt::to_string(L"110.00"));
 
+              flutter::EncodableList productSkuList;
+              auto skuPrice = StorePriceInner(
+                  usd,
+                  true /* on sale */,
+                  dateTimeToISO8601(tomorrow), /* sale end date */
+                  winrt::to_string(L"110.00"),
+                  winrt::to_string(L"110.00"),
+                  winrt::to_string(L"110.00"));
+              StoreProductSkuInner skuInner = StoreProductSkuInner(
+                winrt::to_string(L"SkuStoreId2"),
+                false /*is trial*/,
+                false /*is subscription*/,
+                winrt::to_string(L"SKU Description"),
+                winrt::to_string(L"SKU Title"),
+                nullptr,
+                skuPrice
+              );
+              productSkuList.push_back(flutter::CustomEncodableValue(std::move(skuInner)));
+
               StoreProductInner productInner = StoreProductInner(
                 winrt::to_string(L"SkuStoreId2"),
                 winrt::to_string(L"This is my product 2 description"),
                 winrt::to_string(L"Product 2"),
                 winrt::to_string(L"InAppOfferToken2"),
                 windows_store::StoreProductKind::kDurable,
-                priceInner);
-                
+                priceInner,
+                productSkuList
+              );
+
               productList.push_back(flutter::CustomEncodableValue(std::move(productInner)));
             }
             result(AssociatedStoreProductsInner{ productList });
-            #else       
+#else       
             // If there is an error, we return it
             result(FlutterError(std::to_string(hr.value), hr.value == ERROR_NO_SUCH_USER ?
                 winrt::to_string(L"Error while getting associated store products, no user connected")
               : winrt::to_string(L"Error while getting associated store products"), ""));
-            #endif
+#endif
             return;
           }
-		  std::cout << "Successfully retrieved associated store products." << std::endl;
+		  
+          std::cout << "Successfully retrieved associated store products." << std::endl;
 
           // Iterate the map to get info about all products
           auto productsMap = productsResult.Products();
@@ -191,7 +237,48 @@ namespace windows_store
                 winrt::to_string(product.Price().FormattedPrice()),
                 winrt::to_string(product.Price().FormattedRecurrencePrice()));
 
-            StoreProductInner productInner = StoreProductInner(storeId, description, title, inAppOfferToken, productKind, priceInner);
+            // Study the SKUs of the product
+            flutter::EncodableList productSkuList;
+            for (StoreSku const& sku : product.Skus())
+            {
+              auto skuPrice = StorePriceInner(
+                  winrt::to_string(sku.Price().CurrencyCode()),
+                  sku.Price().IsOnSale(),
+                  dateTimeToISO8601(sku.Price().SaleEndDate()),
+                  winrt::to_string(sku.Price().FormattedBasePrice()),
+                  winrt::to_string(sku.Price().FormattedPrice()),
+                  winrt::to_string(sku.Price().FormattedRecurrencePrice())
+              );
+
+              auto subscriptionInfo = sku.SubscriptionInfo() ? new StoreSubscriptionInfoInner(
+                    sku.SubscriptionInfo().BillingPeriod(),
+                    getSubscriptionBillingPeriodUnit(sku.SubscriptionInfo().BillingPeriodUnit()),
+                    sku.SubscriptionInfo().HasTrialPeriod(),
+                    sku.SubscriptionInfo().TrialPeriod(),
+                    getSubscriptionBillingPeriodUnit(sku.SubscriptionInfo().TrialPeriodUnit()))
+                : nullptr;
+
+              StoreProductSkuInner skuInner = StoreProductSkuInner(
+                winrt::to_string(sku.StoreId()),
+                sku.IsTrial(),
+                sku.IsSubscription(),
+                winrt::to_string(sku.Description()),
+                winrt::to_string(sku.Title()),
+                subscriptionInfo,
+                skuPrice
+              );
+              productSkuList.push_back(flutter::CustomEncodableValue(std::move(skuInner)));
+            }
+
+            StoreProductInner productInner = StoreProductInner(
+              storeId, 
+              description, 
+              title, 
+              inAppOfferToken, 
+              productKind, 
+              priceInner,
+              productSkuList
+            );
 
             productList.push_back(flutter::CustomEncodableValue(std::move(productInner)));
           }

@@ -14,6 +14,9 @@ class AddOnLicense {
   /// The expiration date and time for the add-on license
   DateTime get expirationDateTime => DateTime.parse(expirationDate);
 
+  /// Checks if the add-on license is a lifetime license.
+  bool get isLifetime => expirationDateTime.isAfter(DateTime.now().add(Duration(days: 5 * 365)));
+
   AddOnLicense._(this.inAppOfferToken, this.skuStoreId, this.expirationDate);
 
   factory AddOnLicense._fromInner(inner.AddOnLicenseInner data) {
@@ -61,6 +64,9 @@ class StoreAppLicense {
 
   /// Expiration date and time for the app license
   DateTime get expirationDateTime => DateTime.parse(expirationDate);
+
+  /// Checks if the add-on license is a lifetime license.
+  bool get isLifetime => expirationDateTime.isAfter(DateTime.now().add(Duration(days: 5 * 365)));
 
   factory StoreAppLicense._fromInner(inner.StoreAppLicenseInner data) {
     return StoreAppLicense._(

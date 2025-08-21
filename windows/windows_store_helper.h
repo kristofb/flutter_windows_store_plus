@@ -21,7 +21,9 @@ namespace windows_store
   StoreProductKind getProductKind(const winrt::hstring &product_kind_str);
 
   std::string dateTimeToISO8601(const winrt::Windows::Foundation::DateTime &dateTime);
-  
+
+  StoreSubscriptionBillingPeriodUnit getSubscriptionBillingPeriodUnit(const winrt::Windows::Services::Store::StoreDurationUnit &unit);
+
 } // namespace windows_store
 
 #endif // FLUTTER_PLUGIN_WINDOWS_STORE_HELPER_H_

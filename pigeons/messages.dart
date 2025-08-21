@@ -102,6 +102,80 @@ class StorePriceInner {
   );
 }
 
+enum StoreSubscriptionBillingPeriodUnit {
+  minute,
+  hour,
+  day,
+  week,
+  month,
+  year
+}
+
+/// Provides subscription info for a product SKU that represents a subscription with recurring billing.
+/// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storesubscriptioninfo?view=winrt-26100
+class StoreSubscriptionInfoInner {
+
+/// Duration of the billing period for a subscription, in the units specified by the BillingPeriodUnit property.
+  final int billingPeriod;
+
+  /// Units of the billing period for a subscription.
+  final StoreSubscriptionBillingPeriodUnit billingPeriodUnit;
+
+  /// Value that indicates whether the subscription contains a trial period.
+  final bool hasTrialPeriod;
+
+  /// Duration of the trial period for the subscription, in the units specified by the TrialPeriodUnit property. To determine whether the subscription has a trial period, use the HasTrialPeriod property.
+  final int trialPeriod;
+
+  /// Units of the trial period for the subscription
+  final StoreSubscriptionBillingPeriodUnit trialPeriodUnit;
+
+  const StoreSubscriptionInfoInner(
+    this.billingPeriod,
+    this.billingPeriodUnit,
+    this.hasTrialPeriod,
+    this.trialPeriod,
+    this.trialPeriodUnit,
+  );
+}
+
+/// Provides info for a stock keeping unit (SKU) of a product in the Microsoft Store
+/// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storesku?view=winrt-26100
+class StoreProductSkuInner {
+  /// Store ID of this product SKU
+  final String storeId;
+
+  /// Indicates whether this product SKU is a trial SKU
+  final bool isTrial;
+
+  /// Indicates whether this product SKU is a subscription SKU
+  final bool isSubscription;
+
+  /// Product SKU description from the Microsoft Store listing.
+  final String description;
+
+  /// Product SKU title from the Microsoft Store listing.
+  final String title;
+
+  /// Subscription information for this product SKU, if this product SKU is a subscription with recurring billing. 
+  /// To determine whether this product SKU is a subscription, use the IsSubscription property.
+  final StoreSubscriptionInfoInner? subscriptionInfo;
+
+  /// Price of the default availability for this product SKU.
+  final StorePriceInner price;
+
+  const StoreProductSkuInner(
+    this.storeId,
+    this.isTrial,
+    this.isSubscription,
+    this.description,
+    this.title,
+    this.subscriptionInfo,
+    this.price,
+  );
+
+}
+
 /// Add-on associated to the application in the Microsoft Store
 /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeproduct?view=winrt-26100
 class StoreProductInner {
@@ -123,6 +197,8 @@ class StoreProductInner {
   /// Gets the price for the default SKU and availability for the product.
   final StorePriceInner price;
 
+  final List<StoreProductSkuInner> skus;
+
   const StoreProductInner(
     this.storeId,
     this.description,
@@ -130,6 +206,7 @@ class StoreProductInner {
     this.inAppOfferToken,
     this.productKind,
     this.price,
+    this.skus,
   );
 }
 
