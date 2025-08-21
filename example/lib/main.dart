@@ -53,20 +53,44 @@ class _MyAppState extends State<MyApp> {
       },
     );
 
+    Widget addonsWidget = ListView.builder(
+      itemCount: addons?.products.length ?? 0,
+      itemBuilder: (context, index) {
+        final product = addons!.products[index];
+        return ListTile(
+          title: Text(product.title),
+          subtitle: Text(product.description),
+        );
+      },
+    );
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('Microsoft Store products & licenses demo', style: TextStyle(fontWeight: FontWeight.bold)),
         ),
-        body: Column(
+        body: Row(
           children: [
-            Text('isActive = ${license?.isActive}'),
-            Text('isTrial = ${license?.isTrial}'),
-            Text('skuStoreId = ${license?.skuStoreId}'),
-            Text('trialUniqueId = ${license?.trialUniqueId}'),
-            Text('trialTimeRemaining = ${license?.trialTimeRemaining}'),
-            Text('addons = ${addons?.products.length}'),
-            Expanded(child: addonLicencesWidget),
+            Column(
+              children: [
+                const Text("Current application license info", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('isActive = ${license?.isActive}'),
+                Text('isTrial = ${license?.isTrial}'),
+                Text('skuStoreId = ${license?.skuStoreId}'),
+                Text('trialUniqueId = ${license?.trialUniqueId}'),
+                Text('trialTimeRemaining = ${license?.trialTimeRemaining}'),
+                Text('addons = ${addons?.products.length}'),
+                const Text("Current add-ons license info", style: TextStyle(fontWeight: FontWeight.bold)),
+                Expanded(child: addonLicencesWidget),
+              ],
+            ),
+            const VerticalDivider(),
+            Column(
+              children: [
+                const Text("Application Add-ons info", style: TextStyle(fontWeight: FontWeight.bold)),
+               // Expanded(child: addonsWidget),
+              ],
+            ),
           ],
         ),
       ),
