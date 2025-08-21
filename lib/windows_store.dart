@@ -74,7 +74,7 @@ class StoreAppLicense {
       isTrial: data.isTrial,
       skuStoreId: data.skuStoreId,
       trialUniqueId: data.trialUniqueId,
-      trialTimeRemaining: Duration(milliseconds: data.trialTimeRemaining),
+      trialTimeRemaining: Duration(seconds: data.trialTimeRemaining),
       expirationDate: data.expirationDate,
       addOnLicenses: data.addOnLicenses.map(AddOnLicense._fromInner).toList(),
     );
@@ -129,6 +129,97 @@ class StorePrice {
 /// Represents the kind of product add-on available in the Microsoft Store.
 typedef StoreProductKind = inner.StoreProductKind;
 
+/// Defines values that represent the units of a trial period or billing period for a subscription
+typedef StoreSubscriptionBillingPeriodUnit = inner.StoreSubscriptionBillingPeriodUnit;
+
+/// Provides subscription info for a product SKU that represents a subscription with recurring billing.
+/// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storesubscriptioninfo?view=winrt-26100
+class StoreSubscriptionInfo {
+
+/// Duration of the billing period for a subscription, in the units specified by the BillingPeriodUnit property.
+  final int billingPeriod;
+
+  /// Units of the billing period for a subscription.
+  final StoreSubscriptionBillingPeriodUnit billingPeriodUnit;
+
+  /// Value that indicates whether the subscription contains a trial period.
+  final bool hasTrialPeriod;
+
+  /// Duration of the trial period for the subscription, in the units specified by the TrialPeriodUnit property. To determine whether the subscription has a trial period, use the HasTrialPeriod property.
+  final int trialPeriod;
+
+  /// Units of the trial period for the subscription
+  final StoreSubscriptionBillingPeriodUnit trialPeriodUnit;
+
+  const StoreSubscriptionInfo._(
+    this.billingPeriod,
+    this.billingPeriodUnit,
+    this.hasTrialPeriod,
+    this.trialPeriod,
+    this.trialPeriodUnit,
+  );
+
+  factory StoreSubscriptionInfo._fromInner(inner.StoreSubscriptionInfoInner data) {
+    return StoreSubscriptionInfo._(
+      data.billingPeriod,
+      data.billingPeriodUnit,
+      data.hasTrialPeriod,
+      data.trialPeriod,
+      data.trialPeriodUnit,
+    );
+  }
+}
+
+/// Provides info for a stock keeping unit (SKU) of a product in the Microsoft Store
+/// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storesku?view=winrt-26100
+class StoreProductSku {
+  /// Store ID of this product SKU
+  final String storeId;
+
+  /// Indicates whether this product SKU is a trial SKU
+  final bool isTrial;
+
+  /// Indicates whether this product SKU is a subscription SKU
+  final bool isSubscription;
+
+  /// Product SKU description from the Microsoft Store listing.
+  final String description;
+
+  /// Product SKU title from the Microsoft Store listing.
+  final String title;
+
+  /// Subscription information for this product SKU, if this product SKU is a subscription with recurring billing. 
+  /// To determine whether this product SKU is a subscription, use the IsSubscription property.
+  final StoreSubscriptionInfo? subscriptionInfo;
+
+  /// Price of the default availability for this product SKU.
+  final StorePrice? price;
+
+  const StoreProductSku._(
+    this.storeId,
+    this.isTrial,
+    this.isSubscription,
+    this.description,
+    this.title,
+    this.subscriptionInfo,
+    this.price,
+  );
+
+  factory StoreProductSku._fromInner(inner.StoreProductSkuInner data) {
+    return StoreProductSku._(
+      storeId: data.storeId,
+      isTrial: data.isTrial,
+      isSubscription: data.isSubscription,
+      description: data.description,
+      title: data.title,
+      subscriptionInfo: data.subscriptionInfo != null
+          ? StoreSubscriptionInfo._fromInner(data.subscriptionInfo!)
+          : null,
+      price: data.price != null ? StorePrice._fromInner(data.price!) : null,
+    );
+  }
+}
+
 /// Add-on associated to the application in the Microsoft Store
 /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeproduct?view=winrt-26100
 class StoreProduct {
@@ -139,25 +230,29 @@ class StoreProduct {
     required this.inAppOfferToken,
     required this.productKind,
     required this.price,
+    required this.skus,
   });
 
   /// Gets the Store ID for this product. For an add-on, this property corresponds to the Store ID that is available on the overview page for the add-on.
-  String storeId;
+  final String storeId;
 
   /// Gets the product description from the Microsoft Store listing.
-  String description;
+  final String description;
 
   /// Gets the product title from the Microsoft Store listing.
-  String title;
+  final String title;
 
   /// Gets the product ID for this product, if the current StoreProduct represents an add-on.
-  String inAppOfferToken;
+  final String inAppOfferToken;
 
   /// Gets the type of the product.
-  StoreProductKind productKind;
+  final StoreProductKind productKind;
 
   /// Gets the price for the default SKU and availability for the product.
-  StorePrice price;
+  final StorePrice price;
+
+  /// List of available SKUs for the product. 
+  final List<StoreProductSku> skus;
 
   factory StoreProduct._fromInner(inner.StoreProductInner data) {
     return StoreProduct._(
@@ -167,6 +262,7 @@ class StoreProduct {
       inAppOfferToken: data.inAppOfferToken,
       productKind: data.productKind,
       price: StorePrice._fromInner(data.price),
+      skus: data.skus.map(StoreProductSku._fromInner).toList(),
     );
   }
 }

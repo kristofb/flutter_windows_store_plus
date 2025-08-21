@@ -43,6 +43,7 @@ enum StoreProductKind {
   durable,
 }
 
+/// Defines values that represent the units of a trial period or billing period for a subscription
 enum StoreSubscriptionBillingPeriodUnit {
   minute,
   hour,
@@ -133,7 +134,7 @@ class StoreAppLicenseInner {
   /// Unique ID that identifies the combination of the current user and the usage-limited trial that is associated with this app license
   String trialUniqueId;
 
-  /// Remaining time for the usage-limited trial that is associated with this app license
+  /// Remaining time for the usage-limited trial that is associated with this app license (seconds)
   int trialTimeRemaining;
 
   /// Expiration date and time for the app license (ISO 8601)
@@ -442,6 +443,7 @@ class StoreProductInner {
   /// Gets the price for the default SKU and availability for the product.
   StorePriceInner price;
 
+  /// List of available SKUs for the product. 
   List<StoreProductSkuInner> skus;
 
   List<Object?> _toList() {

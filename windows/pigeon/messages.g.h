@@ -70,6 +70,7 @@ enum class StoreProductKind {
   kDurable = 4
 };
 
+// Defines values that represent the units of a trial period or billing period for a subscription
 enum class StoreSubscriptionBillingPeriodUnit {
   kMinute = 0,
   kHour = 1,
@@ -147,7 +148,7 @@ class StoreAppLicenseInner {
   const std::string& trial_unique_id() const;
   void set_trial_unique_id(std::string_view value_arg);
 
-  // Remaining time for the usage-limited trial that is associated with this app license
+  // Remaining time for the usage-limited trial that is associated with this app license (seconds)
   int64_t trial_time_remaining() const;
   void set_trial_time_remaining(int64_t value_arg);
 
@@ -397,6 +398,7 @@ class StoreProductInner {
   const StorePriceInner& price() const;
   void set_price(const StorePriceInner& value_arg);
 
+  // List of available SKUs for the product. 
   const flutter::EncodableList& skus() const;
   void set_skus(const flutter::EncodableList& value_arg);
 

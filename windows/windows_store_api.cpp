@@ -82,7 +82,7 @@ namespace windows_store
             license.IsTrial(),
             winrt::to_string(license.SkuStoreId()),
             winrt::to_string(license.TrialUniqueId()),
-            license.TrialTimeRemaining().count() / 10000,
+            license.TrialTimeRemaining().count() /*A time period expressed in 100-nanosecond units*/ / 10000000l,
             dateTimeToISO8601(license.ExpirationDate()),
             addonLicenseList);
 

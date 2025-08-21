@@ -12,7 +12,6 @@ import 'package:pigeon/pigeon.dart';
 
 /// Gets valid license info for durables add-on that is associated with the current app
 /// Invalid license are not included, licenses for consumable add-ons are not included.
-
 class AddOnLicenseInner {
   /// The product ID for the add-on.
   final String inAppOfferToken;
@@ -31,14 +30,19 @@ class AddOnLicenseInner {
 class StoreAppLicenseInner {
   /// Indicates whether the license is valid and provides the current user an entitlement to use the app.
   final bool isActive;
+
   /// Indicates whether the license is a trial license.
   final bool isTrial;
+
   /// Store ID of the licensed app SKU from the Microsoft Store catalog
   final String skuStoreId;
+
   /// Unique ID that identifies the combination of the current user and the usage-limited trial that is associated with this app license
   final String trialUniqueId;
-  /// Remaining time for the usage-limited trial that is associated with this app license
+
+  /// Remaining time for the usage-limited trial that is associated with this app license (seconds)
   final int trialTimeRemaining;
+
   /// Expiration date and time for the app license (ISO 8601)
   final String expirationDate;
 
@@ -102,6 +106,7 @@ class StorePriceInner {
   );
 }
 
+/// Defines values that represent the units of a trial period or billing period for a subscription
 enum StoreSubscriptionBillingPeriodUnit {
   minute,
   hour,
@@ -197,6 +202,7 @@ class StoreProductInner {
   /// Gets the price for the default SKU and availability for the product.
   final StorePriceInner price;
 
+  /// List of available SKUs for the product. 
   final List<StoreProductSkuInner> skus;
 
   const StoreProductInner(
