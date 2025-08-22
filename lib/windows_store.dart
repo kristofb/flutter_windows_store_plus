@@ -59,8 +59,8 @@ class StoreAppLicense {
   final String trialUniqueId;
 
   /// The remaining time for the usage-limited trial that is associated with this app license.
-  /// This property is intended to be used by developers who have configured their app as a 
-  /// usage-limited trial in Partner Center. 
+  /// This property is intended to be used by developers who have configured their app as a
+  /// usage-limited trial in Partner Center.
   /// Usage-limited trials are currently available only to some developer accounts in Xbox managed partner programs.
   /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeapplicense.trialtimeremaining?view=winrt-26100
   final Duration trialTimeRemaining;
@@ -190,6 +190,15 @@ class StoreSubscriptionInfo {
 
   /// Units of the trial period for the subscription
   final StoreSubscriptionBillingPeriodUnit trialPeriodUnit;
+
+  /// Subscription period, specified in ISO 8601 format. For example,
+  /// P1W equates to one week, P1M equates to one month,
+  /// P3M equates to three months, P6M equates to six months,
+  /// and P1Y equates to one year.
+  String get billingPeriodISO => 'P${billingPeriod}${billingPeriodUnit.name[0]}';
+
+  /// Trial period, specified in ISO 8601 format.
+  String get trialPeriodISO => 'P${trialPeriod}${trialPeriodUnit.name[0]}';
 
   const StoreSubscriptionInfo._(
     this.billingPeriod,
