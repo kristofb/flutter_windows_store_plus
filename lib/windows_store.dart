@@ -1,7 +1,17 @@
 import "src/messages.g.dart" as inner;
 
-// Export the enums so they can be used by consumers
-export "src/messages.g.dart" show StoreProductKind, StoreSubscriptionBillingPeriodUnit;
+// Export the enums so they can be used by consumers. 
+// All inner data are exposed to enable injection of test data.
+export "src/messages.g.dart"
+    show
+        StoreProductKind,
+        StoreSubscriptionBillingPeriodUnit,
+        StoreAppLicenseInner,
+        AddOnLicenseInner,
+        StorePriceInner,
+        StoreSubscriptionInfoInner,
+        StoreProductInner,
+        StoreProductSkuInner;
 import "src/messages.g.dart" show StoreProductKind, StoreSubscriptionBillingPeriodUnit;
 
 /// Represents a valid license for a durable add-on.
@@ -341,5 +351,35 @@ class WindowsStoreApi {
   /// productKind: The kind of product to retrieve.
   Future<AssociatedStoreProducts> getAssociatedStoreProductsAsync(StoreProductKind productKind) async {
     return AssociatedStoreProducts._fromInner(await _api.getAssociatedStoreProductsAsync(productKind));
+  }
+}
+
+/// Windows Store API test class.
+/// You can inject your data as needed for testing, to reflect your product situation in the Partner Center.
+class WindowsStoreApiTest extends WindowsStoreApi {
+  inner.StorePriceInner? _testStoreAppLicense;
+  inner.AssociatedStoreProductsInner? _testAssociatedStoreProducts;
+
+  /// Injects test data for the Store App License.
+  void injectStoreAppLicense(StoreAppLicenseInner data) {
+    _testStoreAppLicense = data;
+  }
+
+  /// Injects test data for the associated store products.
+  void injectAssociatedStoreProducts(AssociatedStoreProductsInner data) {
+    _testAssociatedStoreProducts = data;
+  }
+
+  /// Get's the license information for from the Microsoft Store. Only works on Windows.
+  @override
+  Future<StoreAppLicense> getAppLicenseAsync() async {
+    return StoreAppLicense._fromInner(_testStoreAppLicense);
+  }
+
+  /// Gets Microsoft Store listing info for the products that can be purchased from within the current app.
+  /// productKind: The kind of product to retrieve.
+  @override
+  Future<AssociatedStoreProducts> getAssociatedStoreProductsAsync(StoreProductKind productKind) async {
+    return AssociatedStoreProducts._fromInner(_testAssociatedStoreProducts);
   }
 }
