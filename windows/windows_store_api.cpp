@@ -265,6 +265,17 @@ namespace windows_store
                     getSubscriptionBillingPeriodUnit(sku.SubscriptionInfo().TrialPeriodUnit()))
                 : nullptr;
 
+              auto collectionData = StoreCollectionDataInner(
+                  winrt::to_string(sku.CollectionData().CampaignId()),
+                  winrt::to_string(sku.CollectionData().DeveloperOfferId()),
+                  winrt::to_string(sku.CollectionData().ExtendedJsonData()),
+                  sku.CollectionData().IsTrial(),
+                  dateTimeToISO8601(sku.CollectionData().AcquiredDate()),
+                  dateTimeToISO8601(sku.CollectionData().StartDate()),
+                  dateTimeToISO8601(sku.CollectionData().EndDate()),
+                  sku.CollectionData().TrialTimeRemaining().count() /*A time period expressed in 100-nanosecond units*/ / 10000000l
+              );
+
               StoreProductSkuInner skuInner = StoreProductSkuInner(
                 winrt::to_string(sku.StoreId()),
                 sku.IsTrial(),
@@ -272,7 +283,11 @@ namespace windows_store
                 winrt::to_string(sku.Description()),
                 winrt::to_string(sku.Title()),
                 subscriptionInfo,
-                skuPrice
+                skuPrice,
+                winrt::to_string(sku.CustomDeveloperData()),
+                winrt::to_string(sku.ExtendedJsonData()),
+                sku.IsInUserCollection(),
+                collectionData
               );
               productSkuList.push_back(flutter::CustomEncodableValue(std::move(skuInner)));
             }

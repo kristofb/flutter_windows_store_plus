@@ -152,8 +152,8 @@ class StoreAppLicenseInner {
   void set_trial_unique_id(std::string_view value_arg);
 
   // The remaining time for the usage-limited trial that is associated with this app license.
-  // This property is intended to be used by developers who have configured their app as a 
-  // usage-limited trial in Partner Center. 
+  // This property is intended to be used by developers who have configured their app as a
+  // usage-limited trial in Partner Center.
   // Usage-limited trials are currently available only to some developer accounts in Xbox managed partner programs.
   // https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeapplicense.trialtimeremaining?view=winrt-26100
   int64_t trial_time_remaining() const;
@@ -285,6 +285,72 @@ class StoreSubscriptionInfoInner {
 };
 
 
+// Provides additional data for a product SKU that the user has an entitlement to use.
+// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storecollectiondata?view=winrt-26100
+//
+// Generated class from Pigeon that represents data sent in messages.
+class StoreCollectionDataInner {
+ public:
+  // Constructs an object setting all fields.
+  explicit StoreCollectionDataInner(
+    const std::string& campaign_id,
+    const std::string& developer_offer_id,
+    const std::string& extended_json_data,
+    bool is_trial,
+    const std::string& acquired_date,
+    const std::string& start_date,
+    const std::string& end_date,
+    int64_t trial_time_remaining);
+
+  // Promotion campaign ID that is associated with the product SKU.
+  const std::string& campaign_id() const;
+  void set_campaign_id(std::string_view value_arg);
+
+  // Developer offer ID that is associated with the product SKU.
+  const std::string& developer_offer_id() const;
+  void set_developer_offer_id(std::string_view value_arg);
+
+  // Complete collection data for the product SKU in JSON format.
+  const std::string& extended_json_data() const;
+  void set_extended_json_data(std::string_view value_arg);
+
+  // Value that indicates whether the product SKU is a trial version.
+  bool is_trial() const;
+  void set_is_trial(bool value_arg);
+
+  // Date on which the product SKU was acquired.
+  const std::string& acquired_date() const;
+  void set_acquired_date(std::string_view value_arg);
+
+  // Start date of the trial for the product SKU, if the SKU is a trial version or a durable add-on that expires after a set duration.
+  const std::string& start_date() const;
+  void set_start_date(std::string_view value_arg);
+
+  // The end date of the trial for the product SKU, if the SKU is a trial version or a durable add-on that expires after a set duration.
+  const std::string& end_date() const;
+  void set_end_date(std::string_view value_arg);
+
+  // Remaining trial time for the usage-limited trial that is associated with this product SKU. (in seconds)
+  int64_t trial_time_remaining() const;
+  void set_trial_time_remaining(int64_t value_arg);
+
+ private:
+  static StoreCollectionDataInner FromEncodableList(const flutter::EncodableList& list);
+  flutter::EncodableList ToEncodableList() const;
+  friend class StoreProductSkuInner;
+  friend class WindowsStoreApi;
+  friend class PigeonInternalCodecSerializer;
+  std::string campaign_id_;
+  std::string developer_offer_id_;
+  std::string extended_json_data_;
+  bool is_trial_;
+  std::string acquired_date_;
+  std::string start_date_;
+  std::string end_date_;
+  int64_t trial_time_remaining_;
+};
+
+
 // Provides info for a stock keeping unit (SKU) of a product in the Microsoft Store
 // https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storesku?view=winrt-26100
 //
@@ -298,7 +364,11 @@ class StoreProductSkuInner {
     bool is_subscription,
     const std::string& description,
     const std::string& title,
-    const StorePriceInner& price);
+    const StorePriceInner& price,
+    const std::string& custom_developer_data,
+    const std::string& extended_json_data,
+    bool is_in_user_collection,
+    const StoreCollectionDataInner& collection_data);
 
   // Constructs an object setting all fields.
   explicit StoreProductSkuInner(
@@ -308,7 +378,11 @@ class StoreProductSkuInner {
     const std::string& description,
     const std::string& title,
     const StoreSubscriptionInfoInner* subscription_info,
-    const StorePriceInner& price);
+    const StorePriceInner& price,
+    const std::string& custom_developer_data,
+    const std::string& extended_json_data,
+    bool is_in_user_collection,
+    const StoreCollectionDataInner& collection_data);
 
   ~StoreProductSkuInner() = default;
   StoreProductSkuInner(const StoreProductSkuInner& other);
@@ -335,7 +409,7 @@ class StoreProductSkuInner {
   const std::string& title() const;
   void set_title(std::string_view value_arg);
 
-  // Subscription information for this product SKU, if this product SKU is a subscription with recurring billing. 
+  // Subscription information for this product SKU, if this product SKU is a subscription with recurring billing.
   // To determine whether this product SKU is a subscription, use the IsSubscription property.
   const StoreSubscriptionInfoInner* subscription_info() const;
   void set_subscription_info(const StoreSubscriptionInfoInner* value_arg);
@@ -344,6 +418,25 @@ class StoreProductSkuInner {
   // Price of the default availability for this product SKU.
   const StorePriceInner& price() const;
   void set_price(const StorePriceInner& value_arg);
+
+  // The custom developer data string (also called a tag) that contains custom information about
+  // the add-on that this product SKU represents.
+  // This string corresponds to the value of the Custom developer data field in the properties page for the add-on in Partner Center.
+  const std::string& custom_developer_data() const;
+  void set_custom_developer_data(std::string_view value_arg);
+
+  // Complete data for the current product SKU from the Store in JSON format.
+  const std::string& extended_json_data() const;
+  void set_extended_json_data(std::string_view value_arg);
+
+  // Value that indicates whether the current user has an entitlement to use the current product SKU.
+  bool is_in_user_collection() const;
+  void set_is_in_user_collection(bool value_arg);
+
+  // Additional data for the current product SKU, if the user has an entitlement to use the SKU.
+  // Valid only if isInUserCollection is true.
+  const StoreCollectionDataInner& collection_data() const;
+  void set_collection_data(const StoreCollectionDataInner& value_arg);
 
  private:
   static StoreProductSkuInner FromEncodableList(const flutter::EncodableList& list);
@@ -357,6 +450,10 @@ class StoreProductSkuInner {
   std::string title_;
   std::unique_ptr<StoreSubscriptionInfoInner> subscription_info_;
   std::unique_ptr<StorePriceInner> price_;
+  std::string custom_developer_data_;
+  std::string extended_json_data_;
+  bool is_in_user_collection_;
+  std::unique_ptr<StoreCollectionDataInner> collection_data_;
 };
 
 
@@ -405,7 +502,7 @@ class StoreProductInner {
   const StorePriceInner& price() const;
   void set_price(const StorePriceInner& value_arg);
 
-  // List of available SKUs for the product. 
+  // List of available SKUs for the product.
   const flutter::EncodableList& skus() const;
   void set_skus(const flutter::EncodableList& value_arg);
 

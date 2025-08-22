@@ -44,8 +44,8 @@ class StoreAppLicenseInner {
   final String trialUniqueId;
 
   /// The remaining time for the usage-limited trial that is associated with this app license.
-  /// This property is intended to be used by developers who have configured their app as a 
-  /// usage-limited trial in Partner Center. 
+  /// This property is intended to be used by developers who have configured their app as a
+  /// usage-limited trial in Partner Center.
   /// Usage-limited trials are currently available only to some developer accounts in Xbox managed partner programs.
   /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeapplicense.trialtimeremaining?view=winrt-26100
   final int trialTimeRemaining;
@@ -114,20 +114,12 @@ class StorePriceInner {
 }
 
 /// Defines values that represent the units of a trial period or billing period for a subscription
-enum StoreSubscriptionBillingPeriodUnit {
-  minute,
-  hour,
-  day,
-  week,
-  month,
-  year
-}
+enum StoreSubscriptionBillingPeriodUnit { minute, hour, day, week, month, year }
 
 /// Provides subscription info for a product SKU that represents a subscription with recurring billing.
 /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storesubscriptioninfo?view=winrt-26100
 class StoreSubscriptionInfoInner {
-
-/// Duration of the billing period for a subscription, in the units specified by the BillingPeriodUnit property.
+  /// Duration of the billing period for a subscription, in the units specified by the BillingPeriodUnit property.
   final int billingPeriod;
 
   /// Units of the billing period for a subscription.
@@ -151,6 +143,45 @@ class StoreSubscriptionInfoInner {
   );
 }
 
+/// Provides additional data for a product SKU that the user has an entitlement to use.
+/// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storecollectiondata?view=winrt-26100
+class StoreCollectionDataInner {
+  /// Promotion campaign ID that is associated with the product SKU.
+  final String campaignId;
+
+  /// Developer offer ID that is associated with the product SKU.
+  final String developerOfferId;
+
+  /// Complete collection data for the product SKU in JSON format.
+  final String extendedJsonData;
+
+  /// Value that indicates whether the product SKU is a trial version.
+  final bool isTrial;
+
+  /// Date on which the product SKU was acquired.
+  final String acquiredDate;
+
+  /// Start date of the trial for the product SKU, if the SKU is a trial version or a durable add-on that expires after a set duration.
+  final String startDate;
+
+  /// The end date of the trial for the product SKU, if the SKU is a trial version or a durable add-on that expires after a set duration.
+  final String endDate;
+
+  /// Remaining trial time for the usage-limited trial that is associated with this product SKU. (in seconds)
+  final int trialTimeRemaining;
+
+  const StoreCollectionDataInner(
+    this.campaignId,
+    this.developerOfferId,
+    this.extendedJsonData,
+    this.isTrial,
+    this.acquiredDate,
+    this.startDate,
+    this.endDate,
+    this.trialTimeRemaining,
+  );
+}
+
 /// Provides info for a stock keeping unit (SKU) of a product in the Microsoft Store
 /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storesku?view=winrt-26100
 class StoreProductSkuInner {
@@ -169,12 +200,27 @@ class StoreProductSkuInner {
   /// Product SKU title from the Microsoft Store listing.
   final String title;
 
-  /// Subscription information for this product SKU, if this product SKU is a subscription with recurring billing. 
+  /// Subscription information for this product SKU, if this product SKU is a subscription with recurring billing.
   /// To determine whether this product SKU is a subscription, use the IsSubscription property.
   final StoreSubscriptionInfoInner? subscriptionInfo;
 
   /// Price of the default availability for this product SKU.
   final StorePriceInner price;
+
+  /// The custom developer data string (also called a tag) that contains custom information about
+  /// the add-on that this product SKU represents.
+  /// This string corresponds to the value of the Custom developer data field in the properties page for the add-on in Partner Center.
+  final String customDeveloperData;
+
+  /// Complete data for the current product SKU from the Store in JSON format.
+  final String extendedJsonData;
+
+  /// Value that indicates whether the current user has an entitlement to use the current product SKU.
+  final bool isInUserCollection;
+
+  /// Additional data for the current product SKU, if the user has an entitlement to use the SKU.
+  /// Valid only if isInUserCollection is true.
+  final StoreCollectionDataInner collectionData;
 
   const StoreProductSkuInner(
     this.storeId,
@@ -184,8 +230,11 @@ class StoreProductSkuInner {
     this.title,
     this.subscriptionInfo,
     this.price,
+    this.customDeveloperData,
+    this.extendedJsonData,
+    this.isInUserCollection,
+    this.collectionData,
   );
-
 }
 
 /// Add-on associated to the application in the Microsoft Store
@@ -209,7 +258,7 @@ class StoreProductInner {
   /// Gets the price for the default SKU and availability for the product.
   final StorePriceInner price;
 
-  /// List of available SKUs for the product. 
+  /// List of available SKUs for the product.
   final List<StoreProductSkuInner> skus;
 
   const StoreProductInner(

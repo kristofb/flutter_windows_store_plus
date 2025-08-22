@@ -138,8 +138,8 @@ class StoreAppLicenseInner {
   String trialUniqueId;
 
   /// The remaining time for the usage-limited trial that is associated with this app license.
-  /// This property is intended to be used by developers who have configured their app as a 
-  /// usage-limited trial in Partner Center. 
+  /// This property is intended to be used by developers who have configured their app as a
+  /// usage-limited trial in Partner Center.
   /// Usage-limited trials are currently available only to some developer accounts in Xbox managed partner programs.
   /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storeapplicense.trialtimeremaining?view=winrt-26100
   int trialTimeRemaining;
@@ -338,6 +338,92 @@ class StoreSubscriptionInfoInner {
 ;
 }
 
+/// Provides additional data for a product SKU that the user has an entitlement to use.
+/// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storecollectiondata?view=winrt-26100
+class StoreCollectionDataInner {
+  StoreCollectionDataInner({
+    required this.campaignId,
+    required this.developerOfferId,
+    required this.extendedJsonData,
+    required this.isTrial,
+    required this.acquiredDate,
+    required this.startDate,
+    required this.endDate,
+    required this.trialTimeRemaining,
+  });
+
+  /// Promotion campaign ID that is associated with the product SKU.
+  String campaignId;
+
+  /// Developer offer ID that is associated with the product SKU.
+  String developerOfferId;
+
+  /// Complete collection data for the product SKU in JSON format.
+  String extendedJsonData;
+
+  /// Value that indicates whether the product SKU is a trial version.
+  bool isTrial;
+
+  /// Date on which the product SKU was acquired.
+  String acquiredDate;
+
+  /// Start date of the trial for the product SKU, if the SKU is a trial version or a durable add-on that expires after a set duration.
+  String startDate;
+
+  /// The end date of the trial for the product SKU, if the SKU is a trial version or a durable add-on that expires after a set duration.
+  String endDate;
+
+  /// Remaining trial time for the usage-limited trial that is associated with this product SKU. (in seconds)
+  int trialTimeRemaining;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      campaignId,
+      developerOfferId,
+      extendedJsonData,
+      isTrial,
+      acquiredDate,
+      startDate,
+      endDate,
+      trialTimeRemaining,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static StoreCollectionDataInner decode(Object result) {
+    result as List<Object?>;
+    return StoreCollectionDataInner(
+      campaignId: result[0]! as String,
+      developerOfferId: result[1]! as String,
+      extendedJsonData: result[2]! as String,
+      isTrial: result[3]! as bool,
+      acquiredDate: result[4]! as String,
+      startDate: result[5]! as String,
+      endDate: result[6]! as String,
+      trialTimeRemaining: result[7]! as int,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! StoreCollectionDataInner || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(encode(), other.encode());
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList())
+;
+}
+
 /// Provides info for a stock keeping unit (SKU) of a product in the Microsoft Store
 /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storesku?view=winrt-26100
 class StoreProductSkuInner {
@@ -349,6 +435,10 @@ class StoreProductSkuInner {
     required this.title,
     this.subscriptionInfo,
     required this.price,
+    required this.customDeveloperData,
+    required this.extendedJsonData,
+    required this.isInUserCollection,
+    required this.collectionData,
   });
 
   /// Store ID of this product SKU
@@ -366,12 +456,27 @@ class StoreProductSkuInner {
   /// Product SKU title from the Microsoft Store listing.
   String title;
 
-  /// Subscription information for this product SKU, if this product SKU is a subscription with recurring billing. 
+  /// Subscription information for this product SKU, if this product SKU is a subscription with recurring billing.
   /// To determine whether this product SKU is a subscription, use the IsSubscription property.
   StoreSubscriptionInfoInner? subscriptionInfo;
 
   /// Price of the default availability for this product SKU.
   StorePriceInner price;
+
+  /// The custom developer data string (also called a tag) that contains custom information about
+  /// the add-on that this product SKU represents.
+  /// This string corresponds to the value of the Custom developer data field in the properties page for the add-on in Partner Center.
+  String customDeveloperData;
+
+  /// Complete data for the current product SKU from the Store in JSON format.
+  String extendedJsonData;
+
+  /// Value that indicates whether the current user has an entitlement to use the current product SKU.
+  bool isInUserCollection;
+
+  /// Additional data for the current product SKU, if the user has an entitlement to use the SKU.
+  /// Valid only if isInUserCollection is true.
+  StoreCollectionDataInner collectionData;
 
   List<Object?> _toList() {
     return <Object?>[
@@ -382,6 +487,10 @@ class StoreProductSkuInner {
       title,
       subscriptionInfo,
       price,
+      customDeveloperData,
+      extendedJsonData,
+      isInUserCollection,
+      collectionData,
     ];
   }
 
@@ -398,6 +507,10 @@ class StoreProductSkuInner {
       title: result[4]! as String,
       subscriptionInfo: result[5] as StoreSubscriptionInfoInner?,
       price: result[6]! as StorePriceInner,
+      customDeveloperData: result[7]! as String,
+      extendedJsonData: result[8]! as String,
+      isInUserCollection: result[9]! as bool,
+      collectionData: result[10]! as StoreCollectionDataInner,
     );
   }
 
@@ -450,7 +563,7 @@ class StoreProductInner {
   /// Gets the price for the default SKU and availability for the product.
   StorePriceInner price;
 
-  /// List of available SKUs for the product. 
+  /// List of available SKUs for the product.
   List<StoreProductSkuInner> skus;
 
   List<Object?> _toList() {
@@ -566,14 +679,17 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is StoreSubscriptionInfoInner) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
-    }    else if (value is StoreProductSkuInner) {
+    }    else if (value is StoreCollectionDataInner) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
-    }    else if (value is StoreProductInner) {
+    }    else if (value is StoreProductSkuInner) {
       buffer.putUint8(136);
       writeValue(buffer, value.encode());
-    }    else if (value is AssociatedStoreProductsInner) {
+    }    else if (value is StoreProductInner) {
       buffer.putUint8(137);
+      writeValue(buffer, value.encode());
+    }    else if (value is AssociatedStoreProductsInner) {
+      buffer.putUint8(138);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -598,10 +714,12 @@ class _PigeonCodec extends StandardMessageCodec {
       case 134: 
         return StoreSubscriptionInfoInner.decode(readValue(buffer)!);
       case 135: 
-        return StoreProductSkuInner.decode(readValue(buffer)!);
+        return StoreCollectionDataInner.decode(readValue(buffer)!);
       case 136: 
-        return StoreProductInner.decode(readValue(buffer)!);
+        return StoreProductSkuInner.decode(readValue(buffer)!);
       case 137: 
+        return StoreProductInner.decode(readValue(buffer)!);
+      case 138: 
         return AssociatedStoreProductsInner.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);

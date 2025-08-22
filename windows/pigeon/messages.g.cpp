@@ -361,6 +361,125 @@ StoreSubscriptionInfoInner StoreSubscriptionInfoInner::FromEncodableList(const E
   return decoded;
 }
 
+// StoreCollectionDataInner
+
+StoreCollectionDataInner::StoreCollectionDataInner(
+  const std::string& campaign_id,
+  const std::string& developer_offer_id,
+  const std::string& extended_json_data,
+  bool is_trial,
+  const std::string& acquired_date,
+  const std::string& start_date,
+  const std::string& end_date,
+  int64_t trial_time_remaining)
+ : campaign_id_(campaign_id),
+    developer_offer_id_(developer_offer_id),
+    extended_json_data_(extended_json_data),
+    is_trial_(is_trial),
+    acquired_date_(acquired_date),
+    start_date_(start_date),
+    end_date_(end_date),
+    trial_time_remaining_(trial_time_remaining) {}
+
+const std::string& StoreCollectionDataInner::campaign_id() const {
+  return campaign_id_;
+}
+
+void StoreCollectionDataInner::set_campaign_id(std::string_view value_arg) {
+  campaign_id_ = value_arg;
+}
+
+
+const std::string& StoreCollectionDataInner::developer_offer_id() const {
+  return developer_offer_id_;
+}
+
+void StoreCollectionDataInner::set_developer_offer_id(std::string_view value_arg) {
+  developer_offer_id_ = value_arg;
+}
+
+
+const std::string& StoreCollectionDataInner::extended_json_data() const {
+  return extended_json_data_;
+}
+
+void StoreCollectionDataInner::set_extended_json_data(std::string_view value_arg) {
+  extended_json_data_ = value_arg;
+}
+
+
+bool StoreCollectionDataInner::is_trial() const {
+  return is_trial_;
+}
+
+void StoreCollectionDataInner::set_is_trial(bool value_arg) {
+  is_trial_ = value_arg;
+}
+
+
+const std::string& StoreCollectionDataInner::acquired_date() const {
+  return acquired_date_;
+}
+
+void StoreCollectionDataInner::set_acquired_date(std::string_view value_arg) {
+  acquired_date_ = value_arg;
+}
+
+
+const std::string& StoreCollectionDataInner::start_date() const {
+  return start_date_;
+}
+
+void StoreCollectionDataInner::set_start_date(std::string_view value_arg) {
+  start_date_ = value_arg;
+}
+
+
+const std::string& StoreCollectionDataInner::end_date() const {
+  return end_date_;
+}
+
+void StoreCollectionDataInner::set_end_date(std::string_view value_arg) {
+  end_date_ = value_arg;
+}
+
+
+int64_t StoreCollectionDataInner::trial_time_remaining() const {
+  return trial_time_remaining_;
+}
+
+void StoreCollectionDataInner::set_trial_time_remaining(int64_t value_arg) {
+  trial_time_remaining_ = value_arg;
+}
+
+
+EncodableList StoreCollectionDataInner::ToEncodableList() const {
+  EncodableList list;
+  list.reserve(8);
+  list.push_back(EncodableValue(campaign_id_));
+  list.push_back(EncodableValue(developer_offer_id_));
+  list.push_back(EncodableValue(extended_json_data_));
+  list.push_back(EncodableValue(is_trial_));
+  list.push_back(EncodableValue(acquired_date_));
+  list.push_back(EncodableValue(start_date_));
+  list.push_back(EncodableValue(end_date_));
+  list.push_back(EncodableValue(trial_time_remaining_));
+  return list;
+}
+
+StoreCollectionDataInner StoreCollectionDataInner::FromEncodableList(const EncodableList& list) {
+  StoreCollectionDataInner decoded(
+    std::get<std::string>(list[0]),
+    std::get<std::string>(list[1]),
+    std::get<std::string>(list[2]),
+    std::get<bool>(list[3]),
+    std::get<std::string>(list[4]),
+    std::get<std::string>(list[5]),
+    std::get<std::string>(list[6]),
+    std::get<int64_t>(list[7]));
+  return decoded;
+}
+
 // StoreProductSkuInner
 
 StoreProductSkuInner::StoreProductSkuInner(
@@ -369,13 +488,21 @@ StoreProductSkuInner::StoreProductSkuInner(
   bool is_subscription,
   const std::string& description,
   const std::string& title,
-  const StorePriceInner& price)
+  const StorePriceInner& price,
+  const std::string& custom_developer_data,
+  const std::string& extended_json_data,
+  bool is_in_user_collection,
+  const StoreCollectionDataInner& collection_data)
  : store_id_(store_id),
     is_trial_(is_trial),
     is_subscription_(is_subscription),
     description_(description),
     title_(title),
-    price_(std::make_unique<StorePriceInner>(price)) {}
+    price_(std::make_unique<StorePriceInner>(price)),
+    custom_developer_data_(custom_developer_data),
+    extended_json_data_(extended_json_data),
+    is_in_user_collection_(is_in_user_collection),
+    collection_data_(std::make_unique<StoreCollectionDataInner>(collection_data)) {}
 
 StoreProductSkuInner::StoreProductSkuInner(
   const std::string& store_id,
@@ -384,14 +511,22 @@ StoreProductSkuInner::StoreProductSkuInner(
   const std::string& description,
   const std::string& title,
   const StoreSubscriptionInfoInner* subscription_info,
-  const StorePriceInner& price)
+  const StorePriceInner& price,
+  const std::string& custom_developer_data,
+  const std::string& extended_json_data,
+  bool is_in_user_collection,
+  const StoreCollectionDataInner& collection_data)
  : store_id_(store_id),
     is_trial_(is_trial),
     is_subscription_(is_subscription),
     description_(description),
     title_(title),
     subscription_info_(subscription_info ? std::make_unique<StoreSubscriptionInfoInner>(*subscription_info) : nullptr),
-    price_(std::make_unique<StorePriceInner>(price)) {}
+    price_(std::make_unique<StorePriceInner>(price)),
+    custom_developer_data_(custom_developer_data),
+    extended_json_data_(extended_json_data),
+    is_in_user_collection_(is_in_user_collection),
+    collection_data_(std::make_unique<StoreCollectionDataInner>(collection_data)) {}
 
 StoreProductSkuInner::StoreProductSkuInner(const StoreProductSkuInner& other)
  : store_id_(other.store_id_),
@@ -400,7 +535,11 @@ StoreProductSkuInner::StoreProductSkuInner(const StoreProductSkuInner& other)
     description_(other.description_),
     title_(other.title_),
     subscription_info_(other.subscription_info_ ? std::make_unique<StoreSubscriptionInfoInner>(*other.subscription_info_) : nullptr),
-    price_(std::make_unique<StorePriceInner>(*other.price_)) {}
+    price_(std::make_unique<StorePriceInner>(*other.price_)),
+    custom_developer_data_(other.custom_developer_data_),
+    extended_json_data_(other.extended_json_data_),
+    is_in_user_collection_(other.is_in_user_collection_),
+    collection_data_(std::make_unique<StoreCollectionDataInner>(*other.collection_data_)) {}
 
 StoreProductSkuInner& StoreProductSkuInner::operator=(const StoreProductSkuInner& other) {
   store_id_ = other.store_id_;
@@ -410,6 +549,10 @@ StoreProductSkuInner& StoreProductSkuInner::operator=(const StoreProductSkuInner
   title_ = other.title_;
   subscription_info_ = other.subscription_info_ ? std::make_unique<StoreSubscriptionInfoInner>(*other.subscription_info_) : nullptr;
   price_ = std::make_unique<StorePriceInner>(*other.price_);
+  custom_developer_data_ = other.custom_developer_data_;
+  extended_json_data_ = other.extended_json_data_;
+  is_in_user_collection_ = other.is_in_user_collection_;
+  collection_data_ = std::make_unique<StoreCollectionDataInner>(*other.collection_data_);
   return *this;
 }
 
@@ -480,9 +623,45 @@ void StoreProductSkuInner::set_price(const StorePriceInner& value_arg) {
 }
 
 
+const std::string& StoreProductSkuInner::custom_developer_data() const {
+  return custom_developer_data_;
+}
+
+void StoreProductSkuInner::set_custom_developer_data(std::string_view value_arg) {
+  custom_developer_data_ = value_arg;
+}
+
+
+const std::string& StoreProductSkuInner::extended_json_data() const {
+  return extended_json_data_;
+}
+
+void StoreProductSkuInner::set_extended_json_data(std::string_view value_arg) {
+  extended_json_data_ = value_arg;
+}
+
+
+bool StoreProductSkuInner::is_in_user_collection() const {
+  return is_in_user_collection_;
+}
+
+void StoreProductSkuInner::set_is_in_user_collection(bool value_arg) {
+  is_in_user_collection_ = value_arg;
+}
+
+
+const StoreCollectionDataInner& StoreProductSkuInner::collection_data() const {
+  return *collection_data_;
+}
+
+void StoreProductSkuInner::set_collection_data(const StoreCollectionDataInner& value_arg) {
+  collection_data_ = std::make_unique<StoreCollectionDataInner>(value_arg);
+}
+
+
 EncodableList StoreProductSkuInner::ToEncodableList() const {
   EncodableList list;
-  list.reserve(7);
+  list.reserve(11);
   list.push_back(EncodableValue(store_id_));
   list.push_back(EncodableValue(is_trial_));
   list.push_back(EncodableValue(is_subscription_));
@@ -490,6 +669,10 @@ EncodableList StoreProductSkuInner::ToEncodableList() const {
   list.push_back(EncodableValue(title_));
   list.push_back(subscription_info_ ? CustomEncodableValue(*subscription_info_) : EncodableValue());
   list.push_back(CustomEncodableValue(*price_));
+  list.push_back(EncodableValue(custom_developer_data_));
+  list.push_back(EncodableValue(extended_json_data_));
+  list.push_back(EncodableValue(is_in_user_collection_));
+  list.push_back(CustomEncodableValue(*collection_data_));
   return list;
 }
 
@@ -500,7 +683,11 @@ StoreProductSkuInner StoreProductSkuInner::FromEncodableList(const EncodableList
     std::get<bool>(list[2]),
     std::get<std::string>(list[3]),
     std::get<std::string>(list[4]),
-    std::any_cast<const StorePriceInner&>(std::get<CustomEncodableValue>(list[6])));
+    std::any_cast<const StorePriceInner&>(std::get<CustomEncodableValue>(list[6])),
+    std::get<std::string>(list[7]),
+    std::get<std::string>(list[8]),
+    std::get<bool>(list[9]),
+    std::any_cast<const StoreCollectionDataInner&>(std::get<CustomEncodableValue>(list[10])));
   auto& encodable_subscription_info = list[5];
   if (!encodable_subscription_info.IsNull()) {
     decoded.set_subscription_info(std::any_cast<const StoreSubscriptionInfoInner&>(std::get<CustomEncodableValue>(encodable_subscription_info)));
@@ -691,12 +878,15 @@ EncodableValue PigeonInternalCodecSerializer::ReadValueOfType(
         return CustomEncodableValue(StoreSubscriptionInfoInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
       }
     case 135: {
-        return CustomEncodableValue(StoreProductSkuInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+        return CustomEncodableValue(StoreCollectionDataInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
       }
     case 136: {
-        return CustomEncodableValue(StoreProductInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+        return CustomEncodableValue(StoreProductSkuInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
       }
     case 137: {
+        return CustomEncodableValue(StoreProductInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+      }
+    case 138: {
         return CustomEncodableValue(AssociatedStoreProductsInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
       }
     default:
@@ -738,18 +928,23 @@ void PigeonInternalCodecSerializer::WriteValue(
       WriteValue(EncodableValue(std::any_cast<StoreSubscriptionInfoInner>(*custom_value).ToEncodableList()), stream);
       return;
     }
-    if (custom_value->type() == typeid(StoreProductSkuInner)) {
+    if (custom_value->type() == typeid(StoreCollectionDataInner)) {
       stream->WriteByte(135);
+      WriteValue(EncodableValue(std::any_cast<StoreCollectionDataInner>(*custom_value).ToEncodableList()), stream);
+      return;
+    }
+    if (custom_value->type() == typeid(StoreProductSkuInner)) {
+      stream->WriteByte(136);
       WriteValue(EncodableValue(std::any_cast<StoreProductSkuInner>(*custom_value).ToEncodableList()), stream);
       return;
     }
     if (custom_value->type() == typeid(StoreProductInner)) {
-      stream->WriteByte(136);
+      stream->WriteByte(137);
       WriteValue(EncodableValue(std::any_cast<StoreProductInner>(*custom_value).ToEncodableList()), stream);
       return;
     }
     if (custom_value->type() == typeid(AssociatedStoreProductsInner)) {
-      stream->WriteByte(137);
+      stream->WriteByte(138);
       WriteValue(EncodableValue(std::any_cast<AssociatedStoreProductsInner>(*custom_value).ToEncodableList()), stream);
       return;
     }
