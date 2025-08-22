@@ -11,6 +11,7 @@ export "src/messages.g.dart"
         AddOnLicenseInner,
         StorePriceInner,
         StoreSubscriptionInfoInner,
+        StoreCollectionDataInner,
         StoreProductInner,
         StoreProductSkuInner;
 import "src/messages.g.dart" show StoreProductKind, StoreSubscriptionBillingPeriodUnit, StoreAppLicenseInner, AssociatedStoreProductsInner;
