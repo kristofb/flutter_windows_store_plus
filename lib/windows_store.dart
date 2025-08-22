@@ -6,13 +6,14 @@ export "src/messages.g.dart"
     show
         StoreProductKind,
         StoreSubscriptionBillingPeriodUnit,
+        AssociatedStoreProductsInner,
         StoreAppLicenseInner,
         AddOnLicenseInner,
         StorePriceInner,
         StoreSubscriptionInfoInner,
         StoreProductInner,
         StoreProductSkuInner;
-import "src/messages.g.dart" show StoreProductKind, StoreSubscriptionBillingPeriodUnit;
+import "src/messages.g.dart" show StoreProductKind, StoreSubscriptionBillingPeriodUnit, StoreAppLicenseInner, AssociatedStoreProductsInner;
 
 /// Represents a valid license for a durable add-on.
 class AddOnLicense {
@@ -61,6 +62,7 @@ class StoreAppLicense {
   final bool isTrial;
 
   /// The Store ID of a the licensed app SKU from the Microsoft Store catalog.
+  /// Todo : query API GetStoreProductForCurrentAppAsync to get data about those SKUs.
   final String skuStoreId;
 
   /// A unique ID that identifies the combination of the current user and the usage-limited
@@ -78,7 +80,14 @@ class StoreAppLicense {
   /// Expiration date and time for the app license (ISO 8601)
   final String expirationDate;
 
-  /// Valid license info for durables add-on that is associated with the current app
+  /// Valid license info for durables add-on that is associated with the current app.
+  /// Each entry in this dictionary:
+  /// - Has a key: the Store ID of the add-on (usually the product ID).
+  /// - Has a value: a StoreLicense object with details like:
+  ///     - SkuStoreId: the full ID of the purchased SKU (e.g., 9NBLGGH69M0B/000N)
+  ///     - IsActive: whether the license is currently valid
+  ///     - ExpirationDate: when the subscription ends
+  ///     - IsTrial: whether the user is in the trial period
   final List<AddOnLicense> addOnLicenses;
 
   /// Expiration date and time for the app license
@@ -357,7 +366,7 @@ class WindowsStoreApi {
 /// Windows Store API test class.
 /// You can inject your data as needed for testing, to reflect your product situation in the Partner Center.
 class WindowsStoreApiTest extends WindowsStoreApi {
-  inner.StorePriceInner? _testStoreAppLicense;
+  inner.StoreAppLicenseInner? _testStoreAppLicense;
   inner.AssociatedStoreProductsInner? _testAssociatedStoreProducts;
 
   /// Injects test data for the Store App License.
@@ -373,13 +382,19 @@ class WindowsStoreApiTest extends WindowsStoreApi {
   /// Get's the license information for from the Microsoft Store. Only works on Windows.
   @override
   Future<StoreAppLicense> getAppLicenseAsync() async {
-    return StoreAppLicense._fromInner(_testStoreAppLicense);
+    if (_testStoreAppLicense == null) {
+      throw Exception("Test data for StoreAppLicense is not injected");
+    }
+    return StoreAppLicense._fromInner(_testStoreAppLicense!);
   }
 
   /// Gets Microsoft Store listing info for the products that can be purchased from within the current app.
   /// productKind: The kind of product to retrieve.
   @override
   Future<AssociatedStoreProducts> getAssociatedStoreProductsAsync(StoreProductKind productKind) async {
-    return AssociatedStoreProducts._fromInner(_testAssociatedStoreProducts);
+    if (_testAssociatedStoreProducts == null) {
+      throw Exception("Test data for AssociatedStoreProducts is not injected");
+    }
+    return AssociatedStoreProducts._fromInner(_testAssociatedStoreProducts!);
   }
 }

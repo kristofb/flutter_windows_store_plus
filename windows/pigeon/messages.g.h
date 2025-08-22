@@ -102,6 +102,8 @@ class AddOnLicenseInner {
   void set_sku_store_id(std::string_view value_arg);
 
   // Gets the expiration date and time for the add-on license. (ISO 8601)
+  // For durable lifetime add-ons, StoreLicense.ExpirationDate typically returns a value like 9999-12-31T00:00:00Z.
+  // This is not documented in Microsoft Learn, but has been confirmed through testing and community discussions (e.g., Stack Overflow, GitHub issues, MSDN forums).
   const std::string& expiration_date() const;
   void set_expiration_date(std::string_view value_arg);
 
