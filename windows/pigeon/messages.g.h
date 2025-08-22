@@ -556,6 +556,11 @@ class PigeonInternalCodecSerializer : public flutter::StandardCodecSerializer {
     flutter::ByteStreamReader* stream) const override;
 };
 
+// If you're building a storefront:
+// - Use getAppLicenseAsync to show the user's app license info and add-ons purchased
+// - Use getAssociatedStoreProductsAsync to show what’s available for purchase
+// - Use getUserCollectionAsync to show what the user already owns, even if it’s no longer purchasable
+//
 // Generated interface from Pigeon that represents a handler of messages from Flutter.
 class WindowsStoreApi {
  public:
@@ -565,7 +570,34 @@ class WindowsStoreApi {
   virtual void GetAppLicenseAsync(std::function<void(ErrorOr<StoreAppLicenseInner> reply)> result) = 0;
   // Gets Microsoft Store listing info for the products that can be purchased from within the current app.
   // productKind: The kind of product to retrieve.
+  // collectionData attribute of store product SKU CANNOT be used.
+  // Reflects the current store state with add-ons available.
+  // 
+  // This method returns StoreProduct objects for add-ons that are:
+  // - Currently associated with your app
+  // - Available for sale in the Microsoft Store
+  // - Filtered by product kind (e.g., "Durable", "Subscription")
+  //
+  // Key traits:
+  // - Focuses on catalog visibility
+  // - Only includes active, sellable products
+  // - Does not include user-specific data like ownership or acquisition
   virtual void GetAssociatedStoreProductsAsync(
+    const StoreProductKind& product_kind,
+    std::function<void(ErrorOr<AssociatedStoreProductsInner> reply)> result) = 0;
+  // Gets Microsoft Store info for the add-ons of the current app for which the user has purchased.
+  // Returns a StoreProductQueryResult object that contains Microsoft Store info for the add-ons of the current app for which the user has purchased and relevant error info.
+  // productKind: The kind of product to retrieve.
+  // collectionData attribute of store product SKU can be used.
+  // 
+  // This method returns StoreProduct objects that the user has acquired, regardless of whether they’re still available for sale.
+  //
+  // Key traits:
+  // - Focuses on user entitlements
+  // - Includes products the user owns, even if they’re no longer listed or sold
+  // - Populates StoreSku.CollectionData with user-specific info (e.g., AcquiredDate, IsTrial, ExtendedJsonData)
+  // - May include outdated, deprecated, or hidden add-ons
+  virtual void GetUserCollectionAsync(
     const StoreProductKind& product_kind,
     std::function<void(ErrorOr<AssociatedStoreProductsInner> reply)> result) = 0;
 

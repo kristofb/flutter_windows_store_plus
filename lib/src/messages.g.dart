@@ -727,6 +727,10 @@ class _PigeonCodec extends StandardMessageCodec {
   }
 }
 
+/// If you're building a storefront:
+/// - Use getAppLicenseAsync to show the user's app license info and add-ons purchased
+/// - Use getAssociatedStoreProductsAsync to show what’s available for purchase
+/// - Use getUserCollectionAsync to show what the user already owns, even if it’s no longer purchasable
 class WindowsStoreApi {
   /// Constructor for [WindowsStoreApi].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
@@ -770,8 +774,60 @@ class WindowsStoreApi {
 
   /// Gets Microsoft Store listing info for the products that can be purchased from within the current app.
   /// productKind: The kind of product to retrieve.
+  /// collectionData attribute of store product SKU CANNOT be used.
+  /// Reflects the current store state with add-ons available.
+  /// 
+  /// This method returns StoreProduct objects for add-ons that are:
+  /// - Currently associated with your app
+  /// - Available for sale in the Microsoft Store
+  /// - Filtered by product kind (e.g., "Durable", "Subscription")
+  ///
+  /// Key traits:
+  /// - Focuses on catalog visibility
+  /// - Only includes active, sellable products
+  /// - Does not include user-specific data like ownership or acquisition
   Future<AssociatedStoreProductsInner> getAssociatedStoreProductsAsync(StoreProductKind productKind) async {
     final String pigeonVar_channelName = 'dev.flutter.pigeon.windows_store.WindowsStoreApi.getAssociatedStoreProductsAsync$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[productKind]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as AssociatedStoreProductsInner?)!;
+    }
+  }
+
+  /// Gets Microsoft Store info for the add-ons of the current app for which the user has purchased.
+  /// Returns a StoreProductQueryResult object that contains Microsoft Store info for the add-ons of the current app for which the user has purchased and relevant error info.
+  /// productKind: The kind of product to retrieve.
+  /// collectionData attribute of store product SKU can be used.
+  /// 
+  /// This method returns StoreProduct objects that the user has acquired, regardless of whether they’re still available for sale.
+  ///
+  /// Key traits:
+  /// - Focuses on user entitlements
+  /// - Includes products the user owns, even if they’re no longer listed or sold
+  /// - Populates StoreSku.CollectionData with user-specific info (e.g., AcquiredDate, IsTrial, ExtendedJsonData)
+  /// - May include outdated, deprecated, or hidden add-ons
+  Future<AssociatedStoreProductsInner> getUserCollectionAsync(StoreProductKind productKind) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.windows_store.WindowsStoreApi.getUserCollectionAsync$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,

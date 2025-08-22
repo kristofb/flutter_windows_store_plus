@@ -19,6 +19,15 @@ namespace windows_store
         void GetAssociatedStoreProductsAsync(
             const StoreProductKind &product_kind,
             std::function<void(ErrorOr<AssociatedStoreProductsInner> reply)> result);
+
+        void GetUserCollectionAsync(
+            const StoreProductKind &product_kind,
+            std::function<void(ErrorOr<AssociatedStoreProductsInner> reply)> result);
+
+    private:
+        void GetStoreProductsAsync(
+            const StoreProductKind &product_kind, const bool is_user_collection,
+            std::function<void(ErrorOr<AssociatedStoreProductsInner> reply)> result);
     };
 
 } // namespace windows_store

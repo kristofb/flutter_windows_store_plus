@@ -1020,6 +1020,35 @@ void WindowsStoreApi::SetUp(
       channel.SetMessageHandler(nullptr);
     }
   }
+  {
+    BasicMessageChannel<> channel(binary_messenger, "dev.flutter.pigeon.windows_store.WindowsStoreApi.getUserCollectionAsync" + prepended_suffix, &GetCodec());
+    if (api != nullptr) {
+      channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
+        try {
+          const auto& args = std::get<EncodableList>(message);
+          const auto& encodable_product_kind_arg = args.at(0);
+          if (encodable_product_kind_arg.IsNull()) {
+            reply(WrapError("product_kind_arg unexpectedly null."));
+            return;
+          }
+          const auto& product_kind_arg = std::any_cast<const StoreProductKind&>(std::get<CustomEncodableValue>(encodable_product_kind_arg));
+          api->GetUserCollectionAsync(product_kind_arg, [reply](ErrorOr<AssociatedStoreProductsInner>&& output) {
+            if (output.has_error()) {
+              reply(WrapError(output.error()));
+              return;
+            }
+            EncodableList wrapped;
+            wrapped.push_back(CustomEncodableValue(std::move(output).TakeValue()));
+            reply(EncodableValue(std::move(wrapped)));
+          });
+        } catch (const std::exception& exception) {
+          reply(WrapError(exception.what()));
+        }
+      });
+    } else {
+      channel.SetMessageHandler(nullptr);
+    }
+  }
 }
 
 EncodableValue WindowsStoreApi::WrapError(std::string_view error_message) {

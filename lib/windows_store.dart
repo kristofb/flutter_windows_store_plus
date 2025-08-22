@@ -362,6 +362,12 @@ class WindowsStoreApi {
   Future<AssociatedStoreProducts> getAssociatedStoreProductsAsync(StoreProductKind productKind) async {
     return AssociatedStoreProducts._fromInner(await _api.getAssociatedStoreProductsAsync(productKind));
   }
+
+  /// Gets Microsoft Store listing info for the products that the user owns.
+  /// productKind: The kind of product to retrieve.
+  Future<AssociatedStoreProducts> getUserCollectionAsync(StoreProductKind productKind) async {
+    return AssociatedStoreProducts._fromInner(await _api.getUserCollectionAsync(productKind));
+  }
 }
 
 /// Windows Store API test class.
@@ -369,6 +375,7 @@ class WindowsStoreApi {
 class WindowsStoreApiTest extends WindowsStoreApi {
   inner.StoreAppLicenseInner? _testStoreAppLicense;
   inner.AssociatedStoreProductsInner? _testAssociatedStoreProducts;
+  inner.AssociatedStoreProductsInner? _testUserCollection;
 
   /// Injects test data for the Store App License.
   void injectStoreAppLicense(StoreAppLicenseInner data) {
@@ -378,6 +385,11 @@ class WindowsStoreApiTest extends WindowsStoreApi {
   /// Injects test data for the associated store products.
   void injectAssociatedStoreProducts(AssociatedStoreProductsInner data) {
     _testAssociatedStoreProducts = data;
+  }
+
+  /// Injects test data for the user collection.
+  void injectUserCollection(AssociatedStoreProductsInner data) {
+    _testUserCollection = data;
   }
 
   /// Get's the license information for from the Microsoft Store. Only works on Windows.
@@ -397,5 +409,15 @@ class WindowsStoreApiTest extends WindowsStoreApi {
       throw Exception("Test data for AssociatedStoreProducts is not injected");
     }
     return AssociatedStoreProducts._fromInner(_testAssociatedStoreProducts!);
+  }
+
+  /// Gets Microsoft Store listing info for the products that the user owns.
+  /// productKind: The kind of product to retrieve.
+  @override
+  Future<AssociatedStoreProducts> getUserCollectionAsync(StoreProductKind productKind) async {
+    if (_testUserCollection == null) {
+      throw Exception("Test data for UserCollection is not injected");
+    }
+    return AssociatedStoreProducts._fromInner(_testUserCollection!);
   }
 }

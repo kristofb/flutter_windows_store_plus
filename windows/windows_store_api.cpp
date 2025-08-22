@@ -100,7 +100,21 @@ namespace windows_store
       const StoreProductKind &product_kind,
       std::function<void(ErrorOr<AssociatedStoreProductsInner> reply)> result)
   {
-    concurrency::create_task([product_kind, result]
+    GetStoreProductsAsync(product_kind, false /* is_user_collection */, result);
+  }
+
+  void WindowsStoreApiInstance::GetUserCollectionAsync(
+      const StoreProductKind &product_kind,
+      std::function<void(ErrorOr<AssociatedStoreProductsInner> reply)> result)
+  {
+    GetStoreProductsAsync(product_kind, true /* is_user_collection */, result);
+  }
+
+  void WindowsStoreApiInstance::GetStoreProductsAsync(
+      const StoreProductKind &product_kind, const bool is_user_collection,
+      std::function<void(ErrorOr<AssociatedStoreProductsInner> reply)> result)
+  {
+    concurrency::create_task([product_kind, result, is_user_collection]
                              {
         try{
           Store::StoreContext storeContext = Store::StoreContext::GetDefault();
@@ -108,7 +122,9 @@ namespace windows_store
           // Create an array containing the only element we want to query.
           auto productKinds = winrt::single_threaded_vector<winrt::hstring>();
           productKinds.Append(productKindStr);
-          auto productsAsync = storeContext.GetAssociatedStoreProductsAsync(productKinds);
+          auto productsAsync = is_user_collection ?
+                                  storeContext.GetUserCollectionAsync(productKinds) :
+                                  storeContext.GetAssociatedStoreProductsAsync(productKinds);
           auto productsResult = productsAsync.get();
 
           // Check if there has been an error during the call
