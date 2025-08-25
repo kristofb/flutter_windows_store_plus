@@ -17,7 +17,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _windowsStorePlugin = WindowsStoreApi();
   StoreAppLicense? license;
-  AssociatedStoreProducts? addons;
+  StoreProductCollection? addons;
 
   @override
   void initState() {
@@ -28,7 +28,7 @@ class _MyAppState extends State<MyApp> {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     final result = await _windowsStorePlugin.getAppLicenseAsync();
-    AssociatedStoreProducts? addons;
+    StoreProductCollection? addons;
     try {
       addons = await _windowsStorePlugin.getAssociatedStoreProductsAsync(StoreProductKind.durable);
     } catch (e) {

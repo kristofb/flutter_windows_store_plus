@@ -1,12 +1,12 @@
 import "src/messages.g.dart" as inner;
 
-// Export the enums so they can be used by consumers. 
+// Export the enums so they can be used by consumers.
 // All inner data are exposed to enable injection of test data.
 export "src/messages.g.dart"
     show
         StoreProductKind,
         StoreSubscriptionBillingPeriodUnit,
-        AssociatedStoreProductsInner,
+        StoreProductCollectionInner,
         StoreAppLicenseInner,
         AddOnLicenseInner,
         StorePriceInner,
@@ -14,7 +14,8 @@ export "src/messages.g.dart"
         StoreCollectionDataInner,
         StoreProductInner,
         StoreProductSkuInner;
-import "src/messages.g.dart" show StoreProductKind, StoreSubscriptionBillingPeriodUnit, StoreAppLicenseInner, AssociatedStoreProductsInner;
+import "src/messages.g.dart"
+    show StoreProductKind, StoreSubscriptionBillingPeriodUnit, StoreAppLicenseInner, StoreProductCollectionInner;
 
 /// Represents a valid license for a durable add-on.
 class AddOnLicense {
@@ -239,6 +240,58 @@ class StoreSubscriptionInfo {
   }
 }
 
+/// Provides additional data for a product SKU that the user has an entitlement to use.
+/// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storecollectiondata?view=winrt-26100
+class StoreCollectionData {
+  /// Promotion campaign ID that is associated with the product SKU.
+  final String campaignId;
+
+  /// Developer offer ID that is associated with the product SKU.
+  final String developerOfferId;
+
+  /// Complete collection data for the product SKU in JSON format.
+  final String extendedJsonData;
+
+  /// Value that indicates whether the product SKU is a trial version.
+  final bool isTrial;
+
+  /// Date on which the product SKU was acquired.
+  final String acquiredDate;
+
+  /// Start date of the trial for the product SKU, if the SKU is a trial version or a durable add-on that expires after a set duration.
+  final String startDate;
+
+  /// The end date of the trial for the product SKU, if the SKU is a trial version or a durable add-on that expires after a set duration.
+  final String endDate;
+
+  /// Remaining trial time for the usage-limited trial that is associated with this product SKU. (in seconds)
+  final int trialTimeRemaining;
+
+  const StoreCollectionData({
+    required this.campaignId,
+    required this.developerOfferId,
+    required this.extendedJsonData,
+    required this.isTrial,
+    required this.acquiredDate,
+    required this.startDate,
+    required this.endDate,
+    required this.trialTimeRemaining,
+  });
+
+  factory StoreCollectionData._fromInner(inner.StoreCollectionDataInner data) {
+    return StoreCollectionData(
+      campaignId: data.campaignId,
+      developerOfferId: data.developerOfferId,
+      extendedJsonData: data.extendedJsonData,
+      isTrial: data.isTrial,
+      acquiredDate: data.acquiredDate,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      trialTimeRemaining: data.trialTimeRemaining,
+    );
+  }
+}
+
 /// Provides info for a stock keeping unit (SKU) of a product in the Microsoft Store
 /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storesku?view=winrt-26100
 class StoreProductSku {
@@ -264,6 +317,21 @@ class StoreProductSku {
   /// Price of the default availability for this product SKU.
   final StorePrice price;
 
+  /// The custom developer data string (also called a tag) that contains custom information about
+  /// the add-on that this product SKU represents.
+  /// This string corresponds to the value of the Custom developer data field in the properties page for the add-on in Partner Center.
+  final String customDeveloperData;
+
+  /// Complete data for the current product SKU from the Store in JSON format.
+  final String extendedJsonData;
+
+  /// Value that indicates whether the current user has an entitlement to use the current product SKU.
+  final bool isInUserCollection;
+
+  /// Additional data for the current product SKU, if the user has an entitlement to use the SKU.
+  /// Valid only if isInUserCollection is true.
+  final StoreCollectionData collectionData;
+
   const StoreProductSku._({
     required this.storeId,
     required this.isTrial,
@@ -272,6 +340,10 @@ class StoreProductSku {
     required this.title,
     required this.subscriptionInfo,
     required this.price,
+    required this.customDeveloperData,
+    required this.extendedJsonData,
+    required this.isInUserCollection,
+    required this.collectionData,
   });
 
   factory StoreProductSku._fromInner(inner.StoreProductSkuInner data) {
@@ -283,6 +355,10 @@ class StoreProductSku {
       title: data.title,
       subscriptionInfo: data.subscriptionInfo != null ? StoreSubscriptionInfo._fromInner(data.subscriptionInfo!) : null,
       price: StorePrice._fromInner(data.price),
+      customDeveloperData: data.customDeveloperData,
+      extendedJsonData: data.extendedJsonData,
+      isInUserCollection: data.isInUserCollection,
+      collectionData: StoreCollectionData._fromInner(data.collectionData),
     );
   }
 }
@@ -334,18 +410,32 @@ class StoreProduct {
   }
 }
 
-/// Represents a collection of add-ons associated with the application in the Microsoft Store.
-class AssociatedStoreProducts {
-  AssociatedStoreProducts._({
+/// Collection of Microsoft Store products (add-ons) returned by a query to Microsoft Store Partner Center.
+/// The content signification will vary depending on the API called.
+class StoreProductCollection {
+  StoreProductCollection._({
     required this.products,
   });
 
+  /// List of Microsoft Store products (add-ons) associated with the application.
   final List<StoreProduct> products;
 
-  factory AssociatedStoreProducts._fromInner(inner.AssociatedStoreProductsInner data) {
-    return AssociatedStoreProducts._(
+  factory StoreProductCollection._fromInner(inner.StoreProductCollectionInner data) {
+    return StoreProductCollection._(
       products: data.products.map(StoreProduct._fromInner).toList(),
     );
+  }
+
+  /// Finds a product SKU by its Store ID.
+  StoreProductSku? getStoreProductSku(String skuStoreId) {
+    for (var product in products) {
+      for (var sku in product.skus) {
+        if (sku.storeId == skuStoreId) {
+          return sku;
+        }
+      }
+    }
+    return null;
   }
 }
 
@@ -359,14 +449,14 @@ class WindowsStoreApi {
 
   /// Gets Microsoft Store listing info for the products that can be purchased from within the current app.
   /// productKind: The kind of product to retrieve.
-  Future<AssociatedStoreProducts> getAssociatedStoreProductsAsync(StoreProductKind productKind) async {
-    return AssociatedStoreProducts._fromInner(await _api.getAssociatedStoreProductsAsync(productKind));
+  Future<StoreProductCollection> getAssociatedStoreProductsAsync(StoreProductKind productKind) async {
+    return StoreProductCollection._fromInner(await _api.getAssociatedStoreProductsAsync(productKind));
   }
 
   /// Gets Microsoft Store listing info for the products that the user owns.
   /// productKind: The kind of product to retrieve.
-  Future<AssociatedStoreProducts> getUserCollectionAsync(StoreProductKind productKind) async {
-    return AssociatedStoreProducts._fromInner(await _api.getUserCollectionAsync(productKind));
+  Future<StoreProductCollection> getUserCollectionAsync(StoreProductKind productKind) async {
+    return StoreProductCollection._fromInner(await _api.getUserCollectionAsync(productKind));
   }
 }
 
@@ -374,8 +464,8 @@ class WindowsStoreApi {
 /// You can inject your data as needed for testing, to reflect your product situation in the Partner Center.
 class WindowsStoreApiTest extends WindowsStoreApi {
   inner.StoreAppLicenseInner? _testStoreAppLicense;
-  inner.AssociatedStoreProductsInner? _testAssociatedStoreProducts;
-  inner.AssociatedStoreProductsInner? _testUserCollection;
+  inner.StoreProductCollectionInner? _testAssociatedStoreProducts;
+  inner.StoreProductCollectionInner? _testUserCollection;
 
   /// Injects test data for the Store App License.
   void injectStoreAppLicense(StoreAppLicenseInner data) {
@@ -383,12 +473,12 @@ class WindowsStoreApiTest extends WindowsStoreApi {
   }
 
   /// Injects test data for the associated store products.
-  void injectAssociatedStoreProducts(AssociatedStoreProductsInner data) {
+  void injectAssociatedStoreProducts(StoreProductCollectionInner data) {
     _testAssociatedStoreProducts = data;
   }
 
   /// Injects test data for the user collection.
-  void injectUserCollection(AssociatedStoreProductsInner data) {
+  void injectUserCollection(StoreProductCollectionInner data) {
     _testUserCollection = data;
   }
 
@@ -403,21 +493,47 @@ class WindowsStoreApiTest extends WindowsStoreApi {
 
   /// Gets Microsoft Store listing info for the products that can be purchased from within the current app.
   /// productKind: The kind of product to retrieve.
+  /// collectionData attribute of store product SKU CANNOT be used.
+  /// Reflects the current store state with add-ons available.
+  /// 
+  /// This method returns StoreProduct objects for add-ons that are:
+  /// - Currently associated with your app
+  /// - Available for sale in the Microsoft Store
+  /// - Filtered by product kind (e.g., "Durable", "Subscription")
+  ///
+  /// Key traits:
+  /// - Focuses on catalog visibility
+  /// - Only includes active, sellable products
+  /// - Does not include user-specific data like ownership or acquisition
+  /// 
+  /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storecontext.getassociatedstoreproductsasync?view=winrt-26100
   @override
-  Future<AssociatedStoreProducts> getAssociatedStoreProductsAsync(StoreProductKind productKind) async {
+  Future<StoreProductCollection> getAssociatedStoreProductsAsync(StoreProductKind productKind) async {
     if (_testAssociatedStoreProducts == null) {
       throw Exception("Test data for AssociatedStoreProducts is not injected");
     }
-    return AssociatedStoreProducts._fromInner(_testAssociatedStoreProducts!);
+    return StoreProductCollection._fromInner(_testAssociatedStoreProducts!);
   }
 
-  /// Gets Microsoft Store listing info for the products that the user owns.
+  /// Gets Microsoft Store info for the add-ons of the current app for which the user has purchased.
   /// productKind: The kind of product to retrieve.
+  /// Returns a StoreProductQueryResult object that contains Microsoft Store info for the add-ons of the current app for which the user has purchased and relevant error info.
+  /// The resulting collectionData attribute of store product SKU can be used.
+  /// 
+  /// This method returns StoreProduct objects that the user has acquired, regardless of whether they’re still available for sale.
+  ///
+  /// Key traits:
+  /// - Focuses on user entitlements
+  /// - Includes products the user owns, even if they’re no longer listed or sold
+  /// - Populates StoreSku.CollectionData with user-specific info (e.g., AcquiredDate, IsTrial, ExtendedJsonData)
+  /// - May include outdated, deprecated, or hidden add-ons
+  /// 
+  /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storecontext.getusercollectionasync?view=winrt-26100
   @override
-  Future<AssociatedStoreProducts> getUserCollectionAsync(StoreProductKind productKind) async {
+  Future<StoreProductCollection> getUserCollectionAsync(StoreProductKind productKind) async {
     if (_testUserCollection == null) {
       throw Exception("Test data for UserCollection is not injected");
     }
-    return AssociatedStoreProducts._fromInner(_testUserCollection!);
+    return StoreProductCollection._fromInner(_testUserCollection!);
   }
 }

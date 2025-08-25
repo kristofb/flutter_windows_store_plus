@@ -98,21 +98,21 @@ namespace windows_store
 
   void WindowsStoreApiInstance::GetAssociatedStoreProductsAsync(
       const StoreProductKind &product_kind,
-      std::function<void(ErrorOr<AssociatedStoreProductsInner> reply)> result)
+      std::function<void(ErrorOr<StoreProductCollectionInner> reply)> result)
   {
     GetStoreProductsAsync(product_kind, false /* is_user_collection */, result);
   }
 
   void WindowsStoreApiInstance::GetUserCollectionAsync(
       const StoreProductKind &product_kind,
-      std::function<void(ErrorOr<AssociatedStoreProductsInner> reply)> result)
+      std::function<void(ErrorOr<StoreProductCollectionInner> reply)> result)
   {
     GetStoreProductsAsync(product_kind, true /* is_user_collection */, result);
   }
 
   void WindowsStoreApiInstance::GetStoreProductsAsync(
       const StoreProductKind &product_kind, const bool is_user_collection,
-      std::function<void(ErrorOr<AssociatedStoreProductsInner> reply)> result)
+      std::function<void(ErrorOr<StoreProductCollectionInner> reply)> result)
   {
     concurrency::create_task([product_kind, result, is_user_collection]
                              {
@@ -223,7 +223,7 @@ namespace windows_store
 
               productList.push_back(flutter::CustomEncodableValue(std::move(productInner)));
             }
-            result(AssociatedStoreProductsInner{ productList });
+            result(StoreProductCollectionInner{ productList });
 #else       
             // If there is an error, we return it
             result(FlutterError(std::to_string(hr.value), hr.value == ERROR_NO_SUCH_USER ?
@@ -321,7 +321,7 @@ namespace windows_store
             productList.push_back(flutter::CustomEncodableValue(std::move(productInner)));
           }
 
-          result(AssociatedStoreProductsInner{ productList });
+          result(StoreProductCollectionInner{ productList });
         }  catch (winrt::hresult_error const& ex)
         {
             winrt::hresult hr = ex.code();

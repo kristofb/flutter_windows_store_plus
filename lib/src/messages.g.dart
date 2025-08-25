@@ -612,11 +612,14 @@ class StoreProductInner {
 ;
 }
 
-class AssociatedStoreProductsInner {
-  AssociatedStoreProductsInner({
+/// Collection of Microsoft Store products (add-ons) returned by a query to Microsoft Store Partner Center.
+/// The content signification will vary depending on the API called.
+class StoreProductCollectionInner {
+  StoreProductCollectionInner({
     required this.products,
   });
 
+  /// List of Microsoft Store products (add-ons) associated with the application.
   List<StoreProductInner> products;
 
   List<Object?> _toList() {
@@ -628,9 +631,9 @@ class AssociatedStoreProductsInner {
   Object encode() {
     return _toList();  }
 
-  static AssociatedStoreProductsInner decode(Object result) {
+  static StoreProductCollectionInner decode(Object result) {
     result as List<Object?>;
-    return AssociatedStoreProductsInner(
+    return StoreProductCollectionInner(
       products: (result[0] as List<Object?>?)!.cast<StoreProductInner>(),
     );
   }
@@ -638,7 +641,7 @@ class AssociatedStoreProductsInner {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    if (other is! AssociatedStoreProductsInner || other.runtimeType != runtimeType) {
+    if (other is! StoreProductCollectionInner || other.runtimeType != runtimeType) {
       return false;
     }
     if (identical(this, other)) {
@@ -688,7 +691,7 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is StoreProductInner) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
-    }    else if (value is AssociatedStoreProductsInner) {
+    }    else if (value is StoreProductCollectionInner) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
     } else {
@@ -720,7 +723,7 @@ class _PigeonCodec extends StandardMessageCodec {
       case 137: 
         return StoreProductInner.decode(readValue(buffer)!);
       case 138: 
-        return AssociatedStoreProductsInner.decode(readValue(buffer)!);
+        return StoreProductCollectionInner.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -786,7 +789,9 @@ class WindowsStoreApi {
   /// - Focuses on catalog visibility
   /// - Only includes active, sellable products
   /// - Does not include user-specific data like ownership or acquisition
-  Future<AssociatedStoreProductsInner> getAssociatedStoreProductsAsync(StoreProductKind productKind) async {
+  /// 
+  /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storecontext.getassociatedstoreproductsasync?view=winrt-26100
+  Future<StoreProductCollectionInner> getAssociatedStoreProductsAsync(StoreProductKind productKind) async {
     final String pigeonVar_channelName = 'dev.flutter.pigeon.windows_store.WindowsStoreApi.getAssociatedStoreProductsAsync$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
@@ -810,7 +815,7 @@ class WindowsStoreApi {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (pigeonVar_replyList[0] as AssociatedStoreProductsInner?)!;
+      return (pigeonVar_replyList[0] as StoreProductCollectionInner?)!;
     }
   }
 
@@ -826,7 +831,9 @@ class WindowsStoreApi {
   /// - Includes products the user owns, even if they’re no longer listed or sold
   /// - Populates StoreSku.CollectionData with user-specific info (e.g., AcquiredDate, IsTrial, ExtendedJsonData)
   /// - May include outdated, deprecated, or hidden add-ons
-  Future<AssociatedStoreProductsInner> getUserCollectionAsync(StoreProductKind productKind) async {
+  /// 
+  /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storecontext.getusercollectionasync?view=winrt-26100
+  Future<StoreProductCollectionInner> getUserCollectionAsync(StoreProductKind productKind) async {
     final String pigeonVar_channelName = 'dev.flutter.pigeon.windows_store.WindowsStoreApi.getUserCollectionAsync$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
@@ -850,7 +857,7 @@ class WindowsStoreApi {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (pigeonVar_replyList[0] as AssociatedStoreProductsInner?)!;
+      return (pigeonVar_replyList[0] as StoreProductCollectionInner?)!;
     }
   }
 }

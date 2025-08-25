@@ -821,29 +821,29 @@ StoreProductInner StoreProductInner::FromEncodableList(const EncodableList& list
   return decoded;
 }
 
-// AssociatedStoreProductsInner
+// StoreProductCollectionInner
 
-AssociatedStoreProductsInner::AssociatedStoreProductsInner(const EncodableList& products)
+StoreProductCollectionInner::StoreProductCollectionInner(const EncodableList& products)
  : products_(products) {}
 
-const EncodableList& AssociatedStoreProductsInner::products() const {
+const EncodableList& StoreProductCollectionInner::products() const {
   return products_;
 }
 
-void AssociatedStoreProductsInner::set_products(const EncodableList& value_arg) {
+void StoreProductCollectionInner::set_products(const EncodableList& value_arg) {
   products_ = value_arg;
 }
 
 
-EncodableList AssociatedStoreProductsInner::ToEncodableList() const {
+EncodableList StoreProductCollectionInner::ToEncodableList() const {
   EncodableList list;
   list.reserve(1);
   list.push_back(EncodableValue(products_));
   return list;
 }
 
-AssociatedStoreProductsInner AssociatedStoreProductsInner::FromEncodableList(const EncodableList& list) {
-  AssociatedStoreProductsInner decoded(
+StoreProductCollectionInner StoreProductCollectionInner::FromEncodableList(const EncodableList& list) {
+  StoreProductCollectionInner decoded(
     std::get<EncodableList>(list[0]));
   return decoded;
 }
@@ -887,7 +887,7 @@ EncodableValue PigeonInternalCodecSerializer::ReadValueOfType(
         return CustomEncodableValue(StoreProductInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
       }
     case 138: {
-        return CustomEncodableValue(AssociatedStoreProductsInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+        return CustomEncodableValue(StoreProductCollectionInner::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
       }
     default:
       return flutter::StandardCodecSerializer::ReadValueOfType(type, stream);
@@ -943,9 +943,9 @@ void PigeonInternalCodecSerializer::WriteValue(
       WriteValue(EncodableValue(std::any_cast<StoreProductInner>(*custom_value).ToEncodableList()), stream);
       return;
     }
-    if (custom_value->type() == typeid(AssociatedStoreProductsInner)) {
+    if (custom_value->type() == typeid(StoreProductCollectionInner)) {
       stream->WriteByte(138);
-      WriteValue(EncodableValue(std::any_cast<AssociatedStoreProductsInner>(*custom_value).ToEncodableList()), stream);
+      WriteValue(EncodableValue(std::any_cast<StoreProductCollectionInner>(*custom_value).ToEncodableList()), stream);
       return;
     }
   }
@@ -1003,7 +1003,7 @@ void WindowsStoreApi::SetUp(
             return;
           }
           const auto& product_kind_arg = std::any_cast<const StoreProductKind&>(std::get<CustomEncodableValue>(encodable_product_kind_arg));
-          api->GetAssociatedStoreProductsAsync(product_kind_arg, [reply](ErrorOr<AssociatedStoreProductsInner>&& output) {
+          api->GetAssociatedStoreProductsAsync(product_kind_arg, [reply](ErrorOr<StoreProductCollectionInner>&& output) {
             if (output.has_error()) {
               reply(WrapError(output.error()));
               return;
@@ -1032,7 +1032,7 @@ void WindowsStoreApi::SetUp(
             return;
           }
           const auto& product_kind_arg = std::any_cast<const StoreProductKind&>(std::get<CustomEncodableValue>(encodable_product_kind_arg));
-          api->GetUserCollectionAsync(product_kind_arg, [reply](ErrorOr<AssociatedStoreProductsInner>&& output) {
+          api->GetUserCollectionAsync(product_kind_arg, [reply](ErrorOr<StoreProductCollectionInner>&& output) {
             if (output.has_error()) {
               reply(WrapError(output.error()));
               return;

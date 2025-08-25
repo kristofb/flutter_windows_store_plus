@@ -521,17 +521,21 @@ class StoreProductInner {
 };
 
 
+// Collection of Microsoft Store products (add-ons) returned by a query to Microsoft Store Partner Center.
+// The content signification will vary depending on the API called.
+//
 // Generated class from Pigeon that represents data sent in messages.
-class AssociatedStoreProductsInner {
+class StoreProductCollectionInner {
  public:
   // Constructs an object setting all fields.
-  explicit AssociatedStoreProductsInner(const flutter::EncodableList& products);
+  explicit StoreProductCollectionInner(const flutter::EncodableList& products);
 
+  // List of Microsoft Store products (add-ons) associated with the application.
   const flutter::EncodableList& products() const;
   void set_products(const flutter::EncodableList& value_arg);
 
  private:
-  static AssociatedStoreProductsInner FromEncodableList(const flutter::EncodableList& list);
+  static StoreProductCollectionInner FromEncodableList(const flutter::EncodableList& list);
   flutter::EncodableList ToEncodableList() const;
   friend class WindowsStoreApi;
   friend class PigeonInternalCodecSerializer;
@@ -582,9 +586,11 @@ class WindowsStoreApi {
   // - Focuses on catalog visibility
   // - Only includes active, sellable products
   // - Does not include user-specific data like ownership or acquisition
+  // 
+  // https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storecontext.getassociatedstoreproductsasync?view=winrt-26100
   virtual void GetAssociatedStoreProductsAsync(
     const StoreProductKind& product_kind,
-    std::function<void(ErrorOr<AssociatedStoreProductsInner> reply)> result) = 0;
+    std::function<void(ErrorOr<StoreProductCollectionInner> reply)> result) = 0;
   // Gets Microsoft Store info for the add-ons of the current app for which the user has purchased.
   // Returns a StoreProductQueryResult object that contains Microsoft Store info for the add-ons of the current app for which the user has purchased and relevant error info.
   // productKind: The kind of product to retrieve.
@@ -597,9 +603,11 @@ class WindowsStoreApi {
   // - Includes products the user owns, even if they’re no longer listed or sold
   // - Populates StoreSku.CollectionData with user-specific info (e.g., AcquiredDate, IsTrial, ExtendedJsonData)
   // - May include outdated, deprecated, or hidden add-ons
+  // 
+  // https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storecontext.getusercollectionasync?view=winrt-26100
   virtual void GetUserCollectionAsync(
     const StoreProductKind& product_kind,
-    std::function<void(ErrorOr<AssociatedStoreProductsInner> reply)> result) = 0;
+    std::function<void(ErrorOr<StoreProductCollectionInner> reply)> result) = 0;
 
   // The codec used by WindowsStoreApi.
   static const flutter::StandardMessageCodec& GetCodec();

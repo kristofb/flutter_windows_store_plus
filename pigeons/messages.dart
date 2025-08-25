@@ -272,10 +272,13 @@ class StoreProductInner {
   );
 }
 
-class AssociatedStoreProductsInner {
+/// Collection of Microsoft Store products (add-ons) returned by a query to Microsoft Store Partner Center.
+/// The content signification will vary depending on the API called.
+class StoreProductCollectionInner {
+  /// List of Microsoft Store products (add-ons) associated with the application.
   final List<StoreProductInner> products;
 
-  const AssociatedStoreProductsInner(this.products);
+  const StoreProductCollectionInner(this.products);
 }
 
 /// If you're building a storefront:
@@ -301,8 +304,10 @@ abstract class WindowsStoreApi {
   /// - Focuses on catalog visibility
   /// - Only includes active, sellable products
   /// - Does not include user-specific data like ownership or acquisition
+  /// 
+  /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storecontext.getassociatedstoreproductsasync?view=winrt-26100
   @async
-  AssociatedStoreProductsInner getAssociatedStoreProductsAsync(StoreProductKind productKind);
+  StoreProductCollectionInner getAssociatedStoreProductsAsync(StoreProductKind productKind);
 
   /// Gets Microsoft Store info for the add-ons of the current app for which the user has purchased.
   /// Returns a StoreProductQueryResult object that contains Microsoft Store info for the add-ons of the current app for which the user has purchased and relevant error info.
@@ -316,7 +321,9 @@ abstract class WindowsStoreApi {
   /// - Includes products the user owns, even if they’re no longer listed or sold
   /// - Populates StoreSku.CollectionData with user-specific info (e.g., AcquiredDate, IsTrial, ExtendedJsonData)
   /// - May include outdated, deprecated, or hidden add-ons
+  /// 
+  /// https://learn.microsoft.com/en-us/uwp/api/windows.services.store.storecontext.getusercollectionasync?view=winrt-26100
   @async
-  AssociatedStoreProductsInner getUserCollectionAsync(StoreProductKind productKind);
+  StoreProductCollectionInner getUserCollectionAsync(StoreProductKind productKind);
 
 }
